@@ -4,10 +4,17 @@
 #include <stdbool.h>
 #include "map.H"
 
-typedef struct{           //struct para guardar las apariciones de cada palabra
+typedef struct{                             //struct para guardar las apariciones de cada palabra
     char palabra[128];
     unsigned long cont;
 }Palabra;
+
+typedef struct{                             //struct para guardar los datos de cada libro
+    char titulo[256];
+    unsigned long id;
+    unsigned long cantPalabras;
+    unsigned long long cantCarac;           //cantidad de caracteres
+}Libro;
 
 
 int stringEqual(const void * key1, const void * key2) {
@@ -57,6 +64,25 @@ char* quitar_caracteres(char* string, char* c){
     return string;
 }
 
+// espera a que el usuario presione ENTER
+void esperarEnter() 
+{
+    printf("Presione ENTER para continuar\n");
+    getchar();getchar();
+}
+
+// compara 2 keys tipo string
+int is_equal(void *key1, void *key2)
+{
+    if (strcmp(key1, key2) == 0) return 1;
+    return 0;
+}
+
+int lower_than(void *key1, void *key2)
+{
+    if (strcmp(key1, key2) < 0) return 1;
+    return 0;
+}
 
 int main()
 {
@@ -115,4 +141,47 @@ void menuLibros(){
         else if(opcion == 0)break;
         else printf("opcion seleccionada no valida");
     }
+}
+
+Libro *cargarLibro(char *titulo, char* id, char* cantPalabras, char* cantCarac){
+    Libro *libro = (Libro*) malloc(sizeof(Libro));
+
+    strcpy(libro->titulo,titulo);
+    strcpy(libro->id,id);
+    strcpy(libro->cantPalabras,cantPalabras);
+    strcpy(libro->cantCarac,cantCarac);
+}
+
+void importarDocumentos(){
+    Map *listaLibros = createMap(is_equal);
+    char idLibros[12800];
+    Libro *libro;
+    Palabra *palabra; //falta colocar un mapa para rellenarlo
+    
+    printf("Ingrese el nombre del o los libros separados por un espacio con la extension .txt: ");
+    scanf("%s", &idLibros);
+
+    char *nombreArchivo = strtok(idLibros," \n");
+
+    while(nombreArchivo != NULL){
+        FILE *fp = fopen(nombreArchivo, "r");
+        char *extension = strrchr(nombreArchivo, '.'); // retorna la posición del ultimo '.'
+        if (strcmp(extension, ".txt") != 0 || !fp)
+        {
+            printf("El archivo introducido no es válido.\n");
+            esperarEnter();
+            return;
+        }
+
+        char *titulo = fgets(titulo,256,fp);
+        char *id = strtok(nombreArchivo, ",\n");
+        //desglosar por palabras y contador (struct palabra?)
+        //contador de caracteres (comoooo)
+
+        cargarLibro(titulo,id,cantPalabras,cantCarac);
+        insertMap(listaLibros,libro->titulo,libro);
+        fclose(fp);
+        nombreArchivo = strtok(NULL," ");
+    }
+    
 }
