@@ -15,4 +15,4 @@ Por ejemplo, si busco “Jesús”, la biblia debería aparecer en primer lugar.
 
 7. Mostrar palabra en su contexto dentro del libro. El usuario ingresa el título de un libro y el de una palabra a buscar. 
 La aplicación muestra las distintas apariciones de la palabra en el contexto del documento, es decir, para cada aparición, se muestran algunas palabras hacia atrás y hacia adelante de la palabra buscada
- (por ejemplo, la línea completa en la que aparece la palabra, o 5 palabras hacia atrás y 5 hacia adelante).
+(por ejemplo, la línea completa en la que aparece la palabra, o 5 palabras hacia atrás y 5 hacia adelante).
