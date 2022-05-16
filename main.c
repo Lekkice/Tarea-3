@@ -146,18 +146,19 @@ void menuLibros(){
 Libro *cargarLibro(char *titulo, char* id, char* cantPalabras, char* cantCarac){
     Libro *libro = (Libro*) malloc(sizeof(Libro));
 
-    strcpy(libro->titulo,titulo);
-    strcpy(libro->id,id);
-    strcpy(libro->cantPalabras,cantPalabras);
-    strcpy(libro->cantCarac,cantCarac);
+    strcpy(libro->titulo, titulo);
+    strcpy(libro->id, id);
+    strcpy(libro->cantPalabras, cantPalabras);
+    strcpy(libro->cantCarac, cantCarac);
 }
 
 void importarDocumentos(){
     Map *listaLibros = createMap(is_equal);
     char idLibros[12800];
     Libro *libro;
-    Palabra *palabra; //falta colocar un mapa para rellenarlo
-    
+    Palabra *palabraStruct; //falta colocar un mapa para rellenarlo
+    Map *mapaPalabra = createMap(is_equal);
+
     printf("Ingrese el nombre del o los libros separados por un espacio con la extension .txt: ");
     scanf("%s", &idLibros);
 
@@ -175,10 +176,25 @@ void importarDocumentos(){
 
         char *titulo = fgets(titulo,256,fp);
         char *id = strtok(nombreArchivo, ",\n");
-        //desglosar por palabras y contador (struct palabra?)
+        unsigned long cantPalabras;
+
+        char *palabras = next_word(fp);
+        while(palabras){
+            Palabra *aux = searchMap(mapaPalabra,palabras);
+            if(aux){
+                aux->cont++;
+            }
+            else{
+                cantPalabras++;
+                strcpy(palabraStruct->palabra,palabras);
+                palabraStruct->cont++;
+                insertMap(mapaPalabra,palabras,palabraStruct);
+            }
+            palabras = next_word(fp);
+        }
         //contador de caracteres (comoooo)
 
-        cargarLibro(titulo,id,cantPalabras,cantCarac);
+        libro = cargarLibro(titulo,id,cantPalabras,cantCarac);
         insertMap(listaLibros,libro->titulo,libro);
         fclose(fp);
         nombreArchivo = strtok(NULL," ");
