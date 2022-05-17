@@ -92,15 +92,15 @@ int main()
         scanf("%i", opcion);
 
         if(opcion == 1)menuImportarDocumentos(mapas);
-        else if(opcion == 2)submenuLibros();
-        else if(opcion == 3)submenuPalabras();
+        else if(opcion == 2)submenuLibros(mapas);
+        else if(opcion == 3)submenuPalabras(mapas);
         else if(opcion == 0)break;
         else printf("opcion seleccionada no valida");
     }
     return 0;
 }
 
-void submenuLibros(){
+void submenuLibros(MapasGlobales *mapas){
     int opcion;
 
     while(true){
@@ -110,14 +110,14 @@ void submenuLibros(){
 
         scanf("%i", opcion);
 
-        if(opcion == 1)mostrarDocumentosOrdenados();
+        if(opcion == 1)mostrarDocumentosOrdenados(mapas->libros);
         else if(opcion == 2)buscarLibros();
         else if(opcion == 0)break;
         else printf("opcion seleccionada no valida");
     }
 }
 
-void submenuPalabras(){
+void submenuPalabras(MapasGlobales *mapas){
     int opcion;
 
     while(true){
@@ -138,13 +138,14 @@ void submenuPalabras(){
     }
 }
 
-Libro *cargarLibro(char *titulo, char* id, char* cantPalabras, char* cantCarac){
+Libro *cargarLibro(char *titulo, char* id, char* cantPalabras, char* cantCarac,TreeMap *palabra){
     Libro *libro = (Libro*) malloc(sizeof(Libro));
 
     strcpy(libro->titulo, titulo);
     strcpy(libro->id, id);
     strcpy(libro->cantPalabras, cantPalabras);
     strcpy(libro->cantCarac, cantCarac);
+    libro->palabras = palabra;
 }
 
 void menuImportarDocumentos(MapasGlobales *mapasGlobales){
@@ -197,10 +198,23 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
             cantCarac++;
         }
 
-        libro = cargarLibro(titulo,id,cantPalabras,cantCarac);
+        libro = cargarLibro(titulo,id,cantPalabras,cantCarac,mapaPalabra);
         insertTreeMap(mapaLibros,libro->titulo,libro);
 
         fclose(fp);
         nombreArchivo = strtok(NULL," \n");
     }   
+}
+
+void mostrarDocumentosOrdenados(TreeMap *mapaLibros){
+    Pair *aux = firstTreeMap(mapaLibros);
+    Libro *data = aux->value;
+    while (1)
+    {
+        printf("%s",aux->key);
+        printf("%lu",data->cantCarac);
+
+        aux = nextTreeMap(mapaLibros);
+        data = aux->value;
+    }
 }
