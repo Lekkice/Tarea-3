@@ -2,11 +2,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "map.H"
+#include "treemap.h"
+#include "list.h"
 
 typedef struct{                             //struct para guardar las apariciones de cada palabra
     char palabra[128];
     unsigned long cont;
+    List *posiciones; // lista con las posiciones en donde se encuentra la palabra en el libro
 }Palabra;
 
 typedef struct{                             //struct para guardar los datos de cada libro
@@ -14,6 +16,7 @@ typedef struct{                             //struct para guardar los datos de c
     unsigned long id;
     unsigned long cantPalabras;
     unsigned long long cantCarac;           //cantidad de caracteres
+    TreeMap *palabras;
 }Libro;
 
 
@@ -23,18 +26,8 @@ int stringEqual(const void * key1, const void * key2) {
     return strcmp(A, B) == 0;
 }
 
-long long stringHash(const void * key) {
-    long long hash = 5381;
-    const char * ptr;
-    for (ptr = key; *ptr != '\0'; ptr++) {
-        hash = ((hash << 5) + hash) + tolower(*ptr); /* hash * 33 + c */
-    }    
-    return hash; 
-}
-
 char* next_word (FILE *fp) {
     char x[1024];
-    /* assumes no word exceeds length of 1023 */
     if (fscanf(fp, " %1023s", x) == 1)
         return strdup(x);
     else
@@ -71,13 +64,6 @@ void esperarEnter()
     getchar();getchar();
 }
 
-// compara 2 keys tipo string
-int is_equal(void *key1, void *key2)
-{
-    if (strcmp(key1, key2) == 0) return 1;
-    return 0;
-}
-
 int lower_than(void *key1, void *key2)
 {
     if (strcmp(key1, key2) < 0) return 1;
@@ -96,16 +82,16 @@ int main()
 
         scanf("%i", opcion);
 
-        if(opcion == 1)importarDocumentos();
-        else if(opcion == 2)menuLibros();
-        else if(opcion == 3)menuPalabras();
+        if(opcion == 1)menuImportarDocumentos();
+        else if(opcion == 2)submenuLibros();
+        else if(opcion == 3)submenuPalabras();
         else if(opcion == 0)break;
         else printf("opcion seleccionada no valida");
     }
     return 0;
 }
 
-void menuLibros(){
+void submenuLibros(){
     int opcion;
 
     while(true){
@@ -122,7 +108,7 @@ void menuLibros(){
     }
 }
 
-void menuLibros(){
+void submenuPalabras(){
     int opcion;
 
     while(true){
@@ -152,12 +138,12 @@ Libro *cargarLibro(char *titulo, char* id, char* cantPalabras, char* cantCarac){
     strcpy(libro->cantCarac, cantCarac);
 }
 
-void importarDocumentos(){
-    Map *listaLibros = createMap(is_equal);
+void menuImportarDocumentos(){
+    TreeMap *listaLibros = createMap(lower_than);
     char idLibros[12800];
     Libro *libro;
     Palabra *palabraStruct; //falta colocar un mapa para rellenarlo
-    Map *mapaPalabra = createMap(is_equal);
+    TreeMap *mapaPalabra = createMap(lower_than);
 
     printf("Ingrese el nombre del o los libros separados por un espacio con la extension .txt: ");
     scanf("%s", &idLibros);
@@ -180,7 +166,7 @@ void importarDocumentos(){
 
         char *palabras = next_word(fp);
         while(palabras){
-            Palabra *aux = searchMap(mapaPalabra,palabras);
+            Palabra *aux = searchTreeMap(mapaPalabra,palabras);
             if(aux){
                 aux->cont++;
             }
@@ -188,16 +174,15 @@ void importarDocumentos(){
                 cantPalabras++;
                 strcpy(palabraStruct->palabra,palabras);
                 palabraStruct->cont++;
-                insertMap(mapaPalabra,palabras,palabraStruct);
+                insertTreeMap(mapaPalabra,palabras,palabraStruct);
             }
             palabras = next_word(fp);
         }
         //contador de caracteres (comoooo)
 
         libro = cargarLibro(titulo,id,cantPalabras,cantCarac);
-        insertMap(listaLibros,libro->titulo,libro);
+        insertTreeMap(listaLibros,libro->titulo,libro);
         fclose(fp);
         nombreArchivo = strtok(NULL," ");
-    }
-    
+    }   
 }
