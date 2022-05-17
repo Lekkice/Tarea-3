@@ -19,6 +19,11 @@ typedef struct{                             //struct para guardar los datos de c
     TreeMap *palabras;
 }Libro;
 
+typedef struct
+{
+    TreeMap *libros; //contiene cada TipoLibro
+    TreeMap *palabras; //contiene las palabras de todos los libros. key = palabra y value = libro.
+} MapasGlobales;
 
 int stringEqual(const void * key1, const void * key2) {
     const char * A = key1;
@@ -74,6 +79,10 @@ int main()
 {
     int opcion;
 
+    MapasGlobales *mapas = (MapasGlobales *) malloc (sizeof(MapasGlobales));
+    mapas->libros = createTreeMap(lower_than);
+    mapas->palabras = createTreeMap(lower_than);
+
     while(true){
         printf("1. Cargar documentos");
         printf("2. Busqueda por documento");
@@ -82,7 +91,7 @@ int main()
 
         scanf("%i", opcion);
 
-        if(opcion == 1)menuImportarDocumentos();
+        if(opcion == 1)menuImportarDocumentos(mapas);
         else if(opcion == 2)submenuLibros();
         else if(opcion == 3)submenuPalabras();
         else if(opcion == 0)break;
@@ -138,12 +147,11 @@ Libro *cargarLibro(char *titulo, char* id, char* cantPalabras, char* cantCarac){
     strcpy(libro->cantCarac, cantCarac);
 }
 
-void menuImportarDocumentos(){
-    TreeMap *listaLibros = createMap(lower_than);
-    char idLibros[12800];
+void menuImportarDocumentos(MapasGlobales *mapasGlobales){
+    TreeMap *mapaLibros = mapasGlobales->libros;
+    TreeMap *mapaPalabra = mapasGlobales->palabras;
+    int idLibros[12800];
     Libro *libro;
-    Palabra *palabraStruct; //falta colocar un mapa para rellenarlo
-    TreeMap *mapaPalabra = createMap(lower_than);
 
     printf("Ingrese el nombre del o los libros separados por un espacio con la extension .txt: ");
     scanf("%s", &idLibros);
@@ -165,19 +173,20 @@ void menuImportarDocumentos(){
         unsigned long cantPalabras;
         unsigned long cantCarac = 0;
 
-        char *palabras = next_word(fp);
-        while(palabras){
-            Palabra *aux = searchTreeMap(mapaPalabra,palabras);
+        char *palabra = next_word(fp);
+        while(palabra){
+            Palabra *aux = searchTreeMap(mapaPalabra, palabra);
             if(aux){
                 aux->cont++;
             }
             else{
-                cantPalabras++;
-                strcpy(palabraStruct->palabra,palabras);
-                palabraStruct->cont++;
-                insertTreeMap(mapaPalabra,palabras,palabraStruct);
+                aux = (Palabra *) malloc (sizeof(Palabra));
+                aux->cont = 1;
+                strcpy(aux->palabra,palabra);
+                insertTreeMap(mapaPalabra,palabra,aux);
             }
-            palabras = next_word(fp);
+            pushBack(aux->posiciones, ftell(fp));
+            palabra = next_word(fp);
         }
         
         while(1){
@@ -189,8 +198,9 @@ void menuImportarDocumentos(){
         }
 
         libro = cargarLibro(titulo,id,cantPalabras,cantCarac);
-        insertTreeMap(listaLibros,libro->titulo,libro);
+        insertTreeMap(mapaLibros,libro->titulo,libro);
+
         fclose(fp);
-        nombreArchivo = strtok(NULL," ");
+        nombreArchivo = strtok(NULL," \n");
     }   
 }
