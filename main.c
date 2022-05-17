@@ -163,7 +163,7 @@ void menuImportarDocumentos(){
         char *titulo = fgets(titulo,256,fp);
         char *id = strtok(nombreArchivo, ",\n");
         unsigned long cantPalabras;
-        unsigned long cantCarac;
+        unsigned long cantCarac = 0;
 
         char *palabras = next_word(fp);
         while(palabras){
@@ -179,7 +179,14 @@ void menuImportarDocumentos(){
             }
             palabras = next_word(fp);
         }
-        //contador de caracteres (comoooo)
+        
+        while(1){
+            int caracter = fgetc(fp);
+
+            if(caracter == EOF)break;
+            if(caracter == 10)continue;
+            cantCarac++;
+        }
 
         libro = cargarLibro(titulo,id,cantPalabras,cantCarac);
         insertTreeMap(listaLibros,libro->titulo,libro);
