@@ -186,7 +186,7 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
         char *titulo = fgets(titulo,256,fp);
         char *id = strtok(nombreArchivo, ",\n");
         unsigned long cantPalabras;
-        unsigned long cantCarac;
+        unsigned long cantCarac = 0;
 
         char *palabra = next_word(fp);
         while(palabra){
@@ -205,7 +205,14 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
             pushBack(aux->posiciones, pos);
             palabra = next_word(fp);
         }
-        //contador de caracteres (comoooo)
+        
+        while(1){
+            int caracter = fgetc(fp);
+
+            if(caracter == EOF)break;
+            if(caracter == 10)continue;
+            cantCarac++;
+        }
 
         Libro *libro = cargarLibro(titulo,id,cantPalabras,cantCarac,mapaPalabra);
         insertTreeMap(mapasGlobales->libros,libro->titulo,libro);
