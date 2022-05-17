@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "treemap.h"
 #include "list.h"
 
@@ -75,6 +76,11 @@ int lower_than(void *key1, void *key2)
     return 0;
 }
 
+void submenuPalabras(MapasGlobales *);
+void submenuLibros(MapasGlobales *);
+void menuImportarDocumentos(MapasGlobales *);
+void mostrarDocumentosOrdenados(TreeMap *);
+
 int main()
 {
     int opcion;
@@ -92,15 +98,15 @@ int main()
         scanf("%i", opcion);
 
         if(opcion == 1)menuImportarDocumentos(mapas);
-        else if(opcion == 2)submenuLibros();
-        else if(opcion == 3)submenuPalabras();
+        else if(opcion == 2)submenuLibros(mapas);
+        else if(opcion == 3)submenuPalabras(mapas);
         else if(opcion == 0)break;
         else printf("opcion seleccionada no valida");
     }
     return 0;
 }
 
-void submenuLibros(){
+void submenuLibros(MapasGlobales *mapas){
     int opcion;
 
     while(true){
@@ -110,14 +116,14 @@ void submenuLibros(){
 
         scanf("%i", opcion);
 
-        if(opcion == 1)mostrarDocumentosOrdenados();
-        else if(opcion == 2)buscarLibros();
+        if(opcion == 1)mostrarDocumentosOrdenados(mapas->libros);
+        /*else if(opcion == 2)buscarLibros();*/
         else if(opcion == 0)break;
         else printf("opcion seleccionada no valida");
     }
 }
 
-void submenuPalabras(){
+void submenuPalabras(MapasGlobales *mapas){
     int opcion;
 
     while(true){
@@ -129,11 +135,11 @@ void submenuPalabras(){
 
         scanf("%i", opcion);
 
-        if(opcion == 1)buscarFrecuencia();
+        /*if(opcion == 1)buscarFrecuencia();
         else if(opcion == 2)buscarRelevancia();
         else if(opcion == 3)buscarApariciones();
-        else if(opcion == 4)mostrarContexto();
-        else if(opcion == 0)break;
+        else if(opcion == 4)mostrarContexto();*/
+        /*else*/ if(opcion == 0)break;
         else printf("opcion seleccionada no valida");
     }
 }
@@ -191,6 +197,7 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
         char *palabra = next_word(fp);
         while(palabra){
             long pos = ftell(fp);
+            cantCarac += strlen(palabra) + 1;
             agregarMapaGlobal(mapasGlobales->palabras, palabra, pos);
             Palabra *aux = searchTreeMap(mapaPalabra, palabra);
             if(aux){
@@ -205,19 +212,24 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
             pushBack(aux->posiciones, pos);
             palabra = next_word(fp);
         }
-        
-        while(1){
-            int caracter = fgetc(fp);
-
-            if(caracter == EOF)break;
-            if(caracter == 10)continue;
-            cantCarac++;
-        }
 
         Libro *libro = cargarLibro(titulo,id,cantPalabras,cantCarac,mapaPalabra);
         insertTreeMap(mapasGlobales->libros,libro->titulo,libro);
 
         fclose(fp);
         nombreArchivo = strtok(NULL," \n");
+    }
+}
+
+void mostrarDocumentosOrdenados(TreeMap * mapalibros){
+    Pair *aux = firstTreeMap(mapalibros);
+    Libro *data = aux->value;
+
+    while(1){
+        printf("%s",aux->key);
+        printf("%lu",data->cantCarac);
+
+        aux = nextTreeMap(mapalibros);
+        data = aux->value;
     }
 }
