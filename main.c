@@ -138,7 +138,7 @@ void submenuPalabras(){
     }
 }
 
-Libro *cargarLibro(char *titulo, char* id, char* cantPalabras, char* cantCarac, TreeMap *mapaPalabra){
+Libro *cargarLibro(char *titulo, char* id, unsigned int cantPalabras, unsigned int cantCarac, TreeMap *mapaPalabra){
     Libro *libro = (Libro*) malloc(sizeof(Libro));
 
     strcpy(libro->titulo, titulo);
@@ -164,7 +164,7 @@ void agregarMapaGlobal(TreeMap *mapa, char *palabra, long pos)
 }
 
 void menuImportarDocumentos(MapasGlobales *mapasGlobales){
-    int idLibros[12800];
+    int idLibros[1024];
 
     printf("Ingrese el nombre del o los libros separados por un espacio con la extension .txt: ");
     scanf("%s", &idLibros);
@@ -185,8 +185,8 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
 
         char *titulo = fgets(titulo,256,fp);
         char *id = strtok(nombreArchivo, ",\n");
-        unsigned long cantPalabras;
-        unsigned long cantCarac = 0;
+        unsigned int cantPalabras = 0;
+        unsigned int cantCarac = 0;
 
         char *palabra = next_word(fp);
         while(palabra){
