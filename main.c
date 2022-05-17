@@ -13,7 +13,7 @@ typedef struct{                             // struct para guardar las aparicion
     List *posiciones;                       // lista con las posiciones en donde se encuentra la palabra en el libro
     int apariciones;                        //cantidad de libros en los que aparece la palabra
     int relevancia;                         //relevancia de la palabra
-    List *aparicionLibros
+    List *aparicionLibros;
 }Palabra;
 
 typedef struct{                             // struct para guardar los datos de cada libro
@@ -162,8 +162,8 @@ Libro *cargarLibro(char *titulo, char* id, unsigned int cantPalabras, unsigned i
 
     strcpy(libro->titulo, titulo);
     strcpy(libro->id, id);
-    strcpy(libro->cantPalabras, cantPalabras);
-    strcpy(libro->cantCarac, cantCarac);
+    libro->cantPalabras = cantPalabras;
+    libro->cantCarac = cantCarac;
     libro->palabras = mapaPalabra;
 }
 
@@ -204,7 +204,7 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
         }
 
         char *titulo = fgets(titulo,256,fp);
-        char *id = strtok(nombreArchivo, ",\n"); //se le deberia pasar nombreArchivo creo antes de hacer un strtok creo
+        char *id = strtok(nombreArchivo, ".");
         unsigned int cantPalabras = 0;
         unsigned int cantCarac = 0;
 
