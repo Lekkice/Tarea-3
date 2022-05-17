@@ -170,7 +170,7 @@ void agregarMapaGlobal(TreeMap *mapa, char *palabra, long pos)
 }
 
 void menuImportarDocumentos(MapasGlobales *mapasGlobales){
-    int idLibros[12800];
+    char idLibros[12800];
 
     printf("Ingrese el nombre del o los libros separados por un espacio con la extension .txt: ");
     scanf("%s", &idLibros);
@@ -197,6 +197,7 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
         char *palabra = next_word(fp);
         while(palabra){
             long pos = ftell(fp);
+            cantCarac += strlen(palabra) + 1;
             agregarMapaGlobal(mapasGlobales->palabras, palabra, pos);
             Palabra *aux = searchTreeMap(mapaPalabra, palabra);
             if(aux){
@@ -210,14 +211,6 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
             }
             pushBack(aux->posiciones, pos);
             palabra = next_word(fp);
-        }
-        
-        while(1){
-            int caracter = fgetc(fp);
-
-            if(caracter == EOF)break;
-            if(caracter == 10)continue;
-            cantCarac++;
         }
 
         Libro *libro = cargarLibro(titulo,id,cantPalabras,cantCarac,mapaPalabra);
