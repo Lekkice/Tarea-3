@@ -171,6 +171,7 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
         char *titulo = fgets(titulo,256,fp);
         char *id = strtok(nombreArchivo, ",\n");
         unsigned long cantPalabras;
+        unsigned long cantCarac;
 
         char *palabra = next_word(fp);
         while(palabra){
