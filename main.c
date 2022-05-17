@@ -3,10 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-<<<<<<< HEAD
 #include <math.h>
-=======
->>>>>>> f816cfa59ed0f0244edc4f2ddd68b72c14170c61
 #include "treemap.h"
 #include "list.h"
 
