@@ -175,8 +175,8 @@ void importarDocumentos(){
 
         char *titulo = fgets(titulo,256,fp);
         char *id = strtok(nombreArchivo, ",\n");
-        //desglosar por palabras y contador (struct palabra?)
-        //contador de caracteres (comoooo)
+        unsigned long long cantPalabras = contador(1,fp);//desglosar por palabras y contador (struct palabra?)
+        unsigned long long cantCarac = contador(0,fp);//contador de caracteres (comoooo)
 
         cargarLibro(titulo,id,cantPalabras,cantCarac);
         insertMap(listaLibros,libro->titulo,libro);
@@ -184,4 +184,20 @@ void importarDocumentos(){
         nombreArchivo = strtok(NULL," ");
     }
     
+}
+
+unsigned long long contador(int opcion, FILE *fp){
+    char strindo[200];
+    char caractero;
+    int i;
+
+    if(opcion){
+        while(1){
+            
+
+        }
+    }
+    else{
+
+    }
 }
