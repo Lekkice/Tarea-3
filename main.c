@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "treemap.h"
 #include "list.h"
 
@@ -75,6 +76,11 @@ int lower_than(void *key1, void *key2)
     return 0;
 }
 
+void submenuPalabras(MapasGlobales *);
+void submenuLibros(MapasGlobales *);
+void menuImportarDocumentos(MapasGlobales *);
+void mostrarDocumentosOrdenados(TreeMap *);
+
 int main()
 {
     int opcion;
@@ -111,7 +117,7 @@ void submenuLibros(MapasGlobales *mapas){
         scanf("%i", opcion);
 
         if(opcion == 1)mostrarDocumentosOrdenados(mapas->libros);
-        else if(opcion == 2)buscarLibros();
+        /*else if(opcion == 2)buscarLibros();*/
         else if(opcion == 0)break;
         else printf("opcion seleccionada no valida");
     }
@@ -129,11 +135,11 @@ void submenuPalabras(MapasGlobales *mapas){
 
         scanf("%i", opcion);
 
-        if(opcion == 1)buscarFrecuencia();
+        /*if(opcion == 1)buscarFrecuencia();
         else if(opcion == 2)buscarRelevancia();
         else if(opcion == 3)buscarApariciones();
-        else if(opcion == 4)mostrarContexto();
-        else if(opcion == 0)break;
+        else if(opcion == 4)mostrarContexto();*/
+        /*else*/ if(opcion == 0)break;
         else printf("opcion seleccionada no valida");
     }
 }
