@@ -138,21 +138,33 @@ void submenuPalabras(MapasGlobales *mapas){
     }
 }
 
-Libro *cargarLibro(char *titulo, char* id, char* cantPalabras, char* cantCarac,TreeMap *palabra){
+Libro *cargarLibro(char *titulo, char* id, char* cantPalabras, char* cantCarac, TreeMap *mapaPalabra){
     Libro *libro = (Libro*) malloc(sizeof(Libro));
 
     strcpy(libro->titulo, titulo);
     strcpy(libro->id, id);
     strcpy(libro->cantPalabras, cantPalabras);
     strcpy(libro->cantCarac, cantCarac);
-    libro->palabras = palabra;
+    libro->palabras = mapaPalabra;
+}
+
+void agregarMapaGlobal(TreeMap *mapa, char *palabra, long pos)
+{
+    Palabra *search = searchTreeMap(mapa, palabra);
+    if (search)
+    {
+        search->cont++;
+    }
+    else
+    {
+        search = (Palabra *) malloc (sizeof(Palabra));
+        search->cont = 1;
+    }
+    pushBack(search->posiciones, pos);
 }
 
 void menuImportarDocumentos(MapasGlobales *mapasGlobales){
-    TreeMap *mapaLibros = mapasGlobales->libros;
-    TreeMap *mapaPalabra = mapasGlobales->palabras;
     int idLibros[12800];
-    Libro *libro;
 
     printf("Ingrese el nombre del o los libros separados por un espacio con la extension .txt: ");
     scanf("%s", &idLibros);
@@ -160,6 +172,8 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
     char *nombreArchivo = strtok(idLibros," \n");
 
     while(nombreArchivo != NULL){
+        TreeMap *mapaPalabra = createTreeMap(lower_than);
+
         FILE *fp = fopen(nombreArchivo, "r");
         char *extension = strrchr(nombreArchivo, '.'); // retorna la posición del ultimo '.'
         if (strcmp(extension, ".txt") != 0 || !fp)
@@ -176,6 +190,8 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
 
         char *palabra = next_word(fp);
         while(palabra){
+            long pos = ftell(fp);
+            agregarMapaGlobal(mapasGlobales->palabras, palabra, pos);
             Palabra *aux = searchTreeMap(mapaPalabra, palabra);
             if(aux){
                 aux->cont++;
@@ -186,7 +202,7 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
                 strcpy(aux->palabra,palabra);
                 insertTreeMap(mapaPalabra,palabra,aux);
             }
-            pushBack(aux->posiciones, ftell(fp));
+            pushBack(aux->posiciones, pos);
             palabra = next_word(fp);
         }
         
@@ -198,23 +214,10 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
             cantCarac++;
         }
 
-        libro = cargarLibro(titulo,id,cantPalabras,cantCarac,mapaPalabra);
-        insertTreeMap(mapaLibros,libro->titulo,libro);
+        Libro *libro = cargarLibro(titulo,id,cantPalabras,cantCarac,mapaPalabra);
+        insertTreeMap(mapasGlobales->libros,libro->titulo,libro);
 
         fclose(fp);
         nombreArchivo = strtok(NULL," \n");
-    }   
-}
-
-void mostrarDocumentosOrdenados(TreeMap *mapaLibros){
-    Pair *aux = firstTreeMap(mapaLibros);
-    Libro *data = aux->value;
-    while (1)
-    {
-        printf("%s",aux->key);
-        printf("%lu",data->cantCarac);
-
-        aux = nextTreeMap(mapaLibros);
-        data = aux->value;
     }
 }
