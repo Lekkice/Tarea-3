@@ -13,6 +13,7 @@ typedef struct{                             // struct para guardar las aparicion
     List *posiciones;                       // lista con las posiciones en donde se encuentra la palabra en el libro
     int apariciones;                        //cantidad de libros en los que aparece la palabra
     int relevancia;                         //relevancia de la palabra
+    List *aparicionLibros
 }Palabra;
 
 typedef struct{                             // struct para guardar los datos de cada libro
@@ -21,13 +22,13 @@ typedef struct{                             // struct para guardar los datos de 
     unsigned long cantPalabras;
     unsigned long long cantCarac;           // cantidad de caracteres
     TreeMap *palabras;
-    int numDocum;                           // cantidad de libros
 }Libro;
 
 typedef struct
 {
     TreeMap *libros;                        //contiene cada TipoLibro
     TreeMap *palabras;                      //contiene las palabras de todos los libros. key = palabra y value = libro.
+    int numDoc;                             //necesitaba un lugar para guardarlo
 } MapasGlobales;
 
 int stringEqual(const void * key1, const void * key2) {
@@ -67,10 +68,11 @@ char* quitar_caracteres(char* string, char* c){
     return string;
 }
 
-int calcularRelevancia(MapasGlobales *mapas){  //no (creo) funciona, *Libro y *Palabra estan mal definidas (se me quema el cerebro)
+int calcularRelevancia(MapasGlobales *mapas){  //(creo que no) funciona, (creo que *Libro y *Palabra estan mal definidas (se me quema el cerebro))
     Libro *Libro = mapas->libros;
     Palabra *Palabra = mapas->palabras;
-    int chapalele = (Palabra->cont/Libro->cantPalabras) * log(Libro->numDocum/Palabra->apariciones);
+
+    int chapalele = (Palabra->cont/Libro->cantPalabras) * log(mapas->numDoc/Palabra->apariciones);
     return chapalele;
 }
 
@@ -181,7 +183,7 @@ void agregarMapaGlobal(TreeMap *mapa, char *palabra, long pos)
 }
 
 void menuImportarDocumentos(MapasGlobales *mapasGlobales){
-    int idLibros[1024];
+    char idLibros[1024];
 
     printf("Ingrese el nombre del o los libros separados por un espacio con la extension .txt: ");
     scanf("%s", &idLibros);
@@ -192,6 +194,7 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
         TreeMap *mapaPalabra = createTreeMap(lower_than);
 
         FILE *fp = fopen(nombreArchivo, "r");
+
         char *extension = strrchr(nombreArchivo, '.'); // retorna la posición del ultimo '.'
         if (strcmp(extension, ".txt") != 0 || !fp)
         {
@@ -201,23 +204,27 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
         }
 
         char *titulo = fgets(titulo,256,fp);
-        char *id = strtok(nombreArchivo, ",\n");
+        char *id = strtok(nombreArchivo, ",\n"); //se le deberia pasar nombreArchivo creo antes de hacer un strtok creo
         unsigned int cantPalabras = 0;
         unsigned int cantCarac = 0;
 
         char *palabra = next_word(fp);
         while(palabra){
             long pos = ftell(fp);
+            cantPalabras++;
             cantCarac += strlen(palabra) + 1;
             agregarMapaGlobal(mapasGlobales->palabras, palabra, pos);
+            
             Palabra *aux = searchTreeMap(mapaPalabra, palabra);
             if(aux){
-                aux->cont++;
+                aux->cont == aux->cont;                     //antes era aux->cont++ pero funcion agregarMapaGlobal ya lo hace
             }
             else{
                 aux = (Palabra *) malloc (sizeof(Palabra));
-                aux->cont = 1;
+                //aux->cont = 1;                            //mismo que linea 221
                 strcpy(aux->palabra,palabra);
+                pushBack(aux->aparicionLibros,id);
+                aux->apariciones++;
                 insertTreeMap(mapaPalabra,palabra,aux);
             }
             pushBack(aux->posiciones, pos);
@@ -226,10 +233,7 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
 
         Libro *libro = cargarLibro(titulo,id,cantPalabras,cantCarac,mapaPalabra);
         insertTreeMap(mapasGlobales->libros,libro->titulo,libro);
-
-        if(searchTreeMap(mapasGlobales->libros->palabras,palabra) != NULL){
-            libro->numDocum++;
-        }
+        mapasGlobales->numDoc++;
 
         fclose(fp);
 
@@ -247,7 +251,7 @@ void mostrarDocumentosOrdenados(TreeMap * mapalibros){
     Pair *aux = firstTreeMap(mapalibros);
     Libro *data = aux->value;
 
-    while(1){
+    while(mapalibros != NULL){
         printf("%s",aux->key);
         printf("%lu",data->cantCarac);
 
