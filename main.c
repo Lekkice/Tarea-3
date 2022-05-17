@@ -221,3 +221,16 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
         nombreArchivo = strtok(NULL," \n");
     }
 }
+
+void mostrarDocumentosOrdenados(TreeMap * mapalibros){
+    Pair *aux = firstTreeMap(mapalibros);
+    Libro *data = aux->value;
+
+    while(1){
+        printf("%s",aux->key);
+        printf("%lu",data->cantCarac);
+
+        aux = nextTreeMap(mapalibros);
+        data = aux->value;
+    }
+}
