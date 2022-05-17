@@ -2,27 +2,32 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
+#include <math.h>
 #include "treemap.h"
 #include "list.h"
 
-typedef struct{                             //struct para guardar las apariciones de cada palabra
+typedef struct{                             // struct para guardar las apariciones de cada palabra
     char palabra[128];
     unsigned long cont;
-    List *posiciones; // lista con las posiciones en donde se encuentra la palabra en el libro
+    List *posiciones;                       // lista con las posiciones en donde se encuentra la palabra en el libro
+    int apariciones;                        //cantidad de libros en los que aparece la palabra
+    int relevancia;                         //relevancia de la palabra
 }Palabra;
 
-typedef struct{                             //struct para guardar los datos de cada libro
+typedef struct{                             // struct para guardar los datos de cada libro
     char titulo[256];
     unsigned long id;
     unsigned long cantPalabras;
-    unsigned long long cantCarac;           //cantidad de caracteres
+    unsigned long long cantCarac;           // cantidad de caracteres
     TreeMap *palabras;
+    int numDocum;                           // cantidad de libros
 }Libro;
 
 typedef struct
 {
-    TreeMap *libros; //contiene cada TipoLibro
-    TreeMap *palabras; //contiene las palabras de todos los libros. key = palabra y value = libro.
+    TreeMap *libros;                        //contiene cada TipoLibro
+    TreeMap *palabras;                      //contiene las palabras de todos los libros. key = palabra y value = libro.
 } MapasGlobales;
 
 int stringEqual(const void * key1, const void * key2) {
@@ -60,6 +65,13 @@ char* quitar_caracteres(char* string, char* c){
 }
 
     return string;
+}
+
+int calcularRelevancia(MapasGlobales *mapas){  //no (creo) funciona, *Libro y *Palabra estan mal definidas (se me quema el cerebro)
+    Libro *Libro = mapas->libros;
+    Palabra *Palabra = mapas->palabras;
+    int chapalele = (Palabra->cont/Libro->cantPalabras) * log(Libro->numDocum/Palabra->apariciones);
+    return chapalele;
 }
 
 // espera a que el usuario presione ENTER
@@ -217,7 +229,18 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
         Libro *libro = cargarLibro(titulo,id,cantPalabras,cantCarac,mapaPalabra);
         insertTreeMap(mapasGlobales->libros,libro->titulo,libro);
 
+        if(searchTreeMap(mapasGlobales->libros->palabras,palabra) != NULL){
+            libro->numDocum++;
+        }
+
         fclose(fp);
+
+        while(mapasGlobales->palabras != NULL){    //se me quema el cerebro ayuda, muchos mapas
+            Palabra *aux = mapasGlobales->palabras;
+            aux->relevancia = calcularRelevancia(mapasGlobales);
+            nextTreeMap(mapasGlobales->palabras);
+        }
+
         nombreArchivo = strtok(NULL," \n");
     }
 }
