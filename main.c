@@ -18,7 +18,7 @@ typedef struct{                             // struct para guardar las aparicion
 
 typedef struct{                             // struct para guardar los datos de cada libro
     char titulo[256];
-    unsigned long id;
+    /*unsigned long id;*/ char *id;
     unsigned long cantPalabras;
     unsigned long long cantCarac;           // cantidad de caracteres
     TreeMap *palabras;
@@ -67,7 +67,8 @@ char* quitar_caracteres(char* string, char* c){
 
     return string;
 }
-
+/*lo que falla es que estamos entregando los arboles con la informacion hay que sacar en especifico lo que necesitamos
+por lo tanto, o lo pasamos desde el importar o pasamos las llaves para buscarlo aca dentro*/
 int calcularRelevancia(MapasGlobales *mapas){  //(creo que no) funciona, (creo que *Libro y *Palabra estan mal definidas (se me quema el cerebro))
     Libro *Libro = mapas->libros;
     Palabra *Palabra = mapas->palabras;
@@ -161,7 +162,7 @@ Libro *cargarLibro(char *titulo, char* id, unsigned int cantPalabras, unsigned i
     Libro *libro = (Libro*) malloc(sizeof(Libro));
 
     strcpy(libro->titulo, titulo);
-    strcpy(libro->id, id);
+    strcpy(libro->id, id); /*libro->id = id;*/
     libro->cantPalabras = cantPalabras;
     libro->cantCarac = cantCarac;
     libro->palabras = mapaPalabra;
@@ -169,7 +170,10 @@ Libro *cargarLibro(char *titulo, char* id, unsigned int cantPalabras, unsigned i
 
 void agregarMapaGlobal(TreeMap *mapa, char *palabra, long pos)
 {
-    Palabra *search = searchTreeMap(mapa, palabra);
+    /*Palabra *search = searchTreeMap(mapa, palabra);*/
+    Pair *aux = searchTreeMap(mapa, palabra);
+    Palabra *search = aux->value; /*aca estoy accediendo a los valores del nodo que buscamos y estoy dandole el valor al search
+                                  lo que no se es de donde saco la palabra si del key o el value*/
     if (search)
     {
         search->cont++;
@@ -179,7 +183,7 @@ void agregarMapaGlobal(TreeMap *mapa, char *palabra, long pos)
         search = (Palabra *) malloc (sizeof(Palabra));
         search->cont = 1;
     }
-    pushBack(search->posiciones, pos);
+    pushBack(search->posiciones, pos); //esto da error por el pos, no se poruqe
 }
 
 void menuImportarDocumentos(MapasGlobales *mapasGlobales){
@@ -215,7 +219,9 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
             cantCarac += strlen(palabra) + 1;
             agregarMapaGlobal(mapasGlobales->palabras, palabra, pos);
             
-            Palabra *aux = searchTreeMap(mapaPalabra, palabra);
+            /*Palabra *aux = searchTreeMap(mapaPalabra, palabra);*/
+            Pair *search = searchTreeMap(mapaPalabra, palabra);
+            Palabra *aux = search->value; // lo que hice antes en agregarMapaGlobal
             if(aux){
                 aux->cont == aux->cont;                     //antes era aux->cont++ pero funcion agregarMapaGlobal ya lo hace
             }
@@ -227,7 +233,7 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
                 aux->apariciones++;
                 insertTreeMap(mapaPalabra,palabra,aux);
             }
-            pushBack(aux->posiciones, pos);
+            pushBack(aux->posiciones, pos); //no se el por que ocurre el error pero se da por el pos
             palabra = next_word(fp);
         }
 
@@ -238,7 +244,7 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
         fclose(fp);
 
         while(mapasGlobales->palabras != NULL){    //se me quema el cerebro ayuda, muchos mapas
-            Palabra *aux = mapasGlobales->palabras;
+            Palabra *aux = searchTreeMap(mapasGlobales->palabras,); //hay que entregar la palabra o el tipo palabra en especifico
             aux->relevancia = calcularRelevancia(mapasGlobales);
             nextTreeMap(mapasGlobales->palabras);
         }
