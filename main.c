@@ -17,7 +17,7 @@ typedef struct{                             // struct para guardar los datos de 
 
 typedef struct{                             // struct para guardar las apariciones de cada palabra
     char palabra[128];
-    Libro libro;                            // libro asociado al struct
+    Libro *libro;                            // libro asociado al struct
     unsigned long cont;
     List *posiciones;                       // lista con las posiciones en donde se encuentra la palabra en el libro
     int relevancia;                         //relevancia de la palabra
@@ -68,12 +68,17 @@ char* quitar_caracteres(char* string, char* c){
 }
 /*lo que falla es que estamos entregando los arboles con la informacion hay que sacar en especifico lo que necesitamos
 por lo tanto, o lo pasamos desde el importar o pasamos las llaves para buscarlo aca dentro*/
-int calcularRelevancia(MapasGlobales *mapas){  //(creo que no) funciona, (creo que *Libro y *Palabra estan mal definidas (se me quema el cerebro))
-    TreeMap *libros = mapas->libros;
-    TreeMap *palabras = mapas->palabras;
-    int chapalele;
-    // int chapalele = (Palabra->cont/Libro->cantPalabras) * log(mapas->numDoc/Palabra->apariciones); crear una función para encontrar apariciones
-    return chapalele;
+void calcularRelevancia(Pair *data,Libro *libro, int numDoc){  //(creo que no) funciona, (creo que *Libro y *Palabra estan mal definidas (se me quema el cerebro))
+    List *aux = data->value->posiciones;
+    int cont;
+
+    firstList(aux);
+    while(aux != NULL){    //ta malo, me borraron list apariciones, hay que sacar el numero de documentos en los que aparece
+        cont++;
+        nextList(aux);
+    }
+
+    //data->value->relevancia = (data->value->cont/libros->cantPalabras) * log(numDoc/cont); crear una función para encontrar apariciones
 }
 
 // espera a que el usuario presione ENTER
@@ -251,14 +256,14 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
 
         Libro *libro = cargarLibro(titulo,id,cantPalabras,cantCarac,mapaPalabra);
         insertTreeMap(mapasGlobales->libros,libro->titulo,libro);
-        mapasGlobales->numDoc++;
+        mapasGlobales->numDoc += 1;
 
         fclose(fp);
 
+        //Pair *auxRelev = firstMap(mapasGlobales->palabras);
         // while(mapasGlobales->palabras != NULL){    //se me quema el cerebro ayuda, muchos mapas
-        //     Palabra *aux = searchTreeMap(mapasGlobales->palabras,); //hay que entregar la palabra o el tipo palabra en especifico
-        //     aux->relevancia = calcularRelevancia(mapasGlobales);
-        //     nextTreeMap(mapasGlobales->palabras);
+        //      calcularRelevancia(auxRelev,libro,mapasGlobales->numDoc);
+        //      auxRelev = nextTreeMap(mapasGlobales->palabras);
         // }
 
         printf("Libro %s cargado\n", libro->titulo);
@@ -278,4 +283,27 @@ void mostrarDocumentosOrdenados(TreeMap * mapalibros){
         aux = nextTreeMap(mapalibros);
         data = aux->value;
     }
+}
+
+void buscarPalabra(MapasGlobales *mapas){
+    Libro *libros = mapas->libros;
+    char palabra[128];
+    Libro *aux;
+
+    printf("Ingrese la palabra que se quiere buscar");
+    scanf("%s\n",&palabra);
+
+    while(1){
+        aux = searchTreeMap(libros,palabra);
+        if(aux == NULL){
+            break;
+        }
+        else{
+            printf("%s",aux->titulo);
+            printf("%s",aux->id);
+        }
+
+        aux = nextTreeMap(libros);
+    }
+
 }
