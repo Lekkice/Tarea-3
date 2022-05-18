@@ -167,17 +167,17 @@ Libro *cargarLibro(char *titulo, char* id, unsigned int cantPalabras, unsigned i
     libro->palabras = mapaPalabra;
 }
 
-void agregarMapaGlobal(TreeMap *mapa, char *palabraStr, Palabra *palabra)
+void agregarMapaGlobal(TreeMap *mapa, char *tituloLibro, Palabra *palabra)
 {
-    Pair *search = searchTreeMap(mapa, palabraStr);
+    Pair *search = searchTreeMap(mapa, tituloLibro);
     TreeMap *map;
     if (!search)
     {
         map = createTreeMap(lower_than);
-        insertTreeMap(mapa, palabraStr, map);
+        insertTreeMap(mapa, tituloLibro, map);
     }
     else map = search->value;
-    insertTreeMap(map, palabraStr, palabra);
+    insertTreeMap(map, tituloLibro, palabra);
 }
 
 void menuImportarDocumentos(MapasGlobales *mapasGlobales){
@@ -236,7 +236,7 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
             else{
                 aux = (Palabra *) malloc (sizeof(Palabra));
                 aux->posiciones = createList();
-                agregarMapaGlobal(mapasGlobales->palabras, palabra, aux);
+                agregarMapaGlobal(mapasGlobales->palabras, titulo, aux);
                 aux->cont = 1;
                 strcpy(aux->palabra,palabra);
                 insertTreeMap(mapaPalabra,palabra,aux);
