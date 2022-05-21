@@ -67,8 +67,8 @@ char* quitar_caracteres(char* string, char* c){
     return string;
 }
 /*lo que falla es que estamos entregando los arboles con la informacion hay que sacar en especifico lo que necesitamos
-por lo tanto, o lo pasamos desde el importar o pasamos las llaves para buscarlo aca dentro*/
-void calcularRelevancia(Pair *data,Libro *libro, int numDoc){  //(creo que no) funciona, (creo que *Libro y *Palabra estan mal definidas (se me quema el cerebro))
+por lo tanto, o lo pasamos desde el importar o pasamos las llaves para buscarlo aca dentro
+//void menuCalcularRelevancia(Pair *data,Libro *libro, int numDoc){  //(creo que no) funciona, (creo que *Libro y *Palabra estan mal definidas (se me quema el cerebro))
     List *aux = data->value->posiciones;
     int cont;
 
@@ -80,7 +80,7 @@ void calcularRelevancia(Pair *data,Libro *libro, int numDoc){  //(creo que no) f
 
     //data->value->relevancia = (data->value->cont/libros->cantPalabras) * log(numDoc/cont); crear una función para encontrar apariciones
 }
-
+*/
 // espera a que el usuario presione ENTER
 void esperarEnter() 
 {
@@ -262,7 +262,7 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
 
         //Pair *auxRelev = firstMap(mapasGlobales->palabras);
         // while(mapasGlobales->palabras != NULL){    //se me quema el cerebro ayuda, muchos mapas
-        //      calcularRelevancia(auxRelev,libro,mapasGlobales->numDoc);
+        //      menuCalcularRelevancia(auxRelev,libro,mapasGlobales->numDoc);
         //      auxRelev = nextTreeMap(mapasGlobales->palabras);
         // }
 
@@ -286,21 +286,23 @@ void mostrarDocumentosOrdenados(TreeMap * mapalibros){
 }
 
 void buscarPalabra(MapasGlobales *mapas){
-    Libro *libros = mapas->libros;
+    TreeMap *libros = mapas->libros;
     char palabra[128];
-    Libro *aux;
+    Pair *aux;
+    Libro *data;
 
     printf("Ingrese la palabra que se quiere buscar");
     scanf("%s\n",&palabra);
 
     while(1){
         aux = searchTreeMap(libros,palabra);
+        data = aux->value;
         if(aux == NULL){
             break;
         }
         else{
-            printf("%s",aux->titulo);
-            printf("%s",aux->id);
+            printf("%s",data->titulo);
+            printf("%s",data->id);
         }
 
         aux = nextTreeMap(libros);
