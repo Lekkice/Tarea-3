@@ -73,7 +73,7 @@ void calcularRelevancia(Pair *data,Libro *libro, int numDoc){
     Palabra *aux = data->value;
     aux->relevancia = (aux->cont/libro->cantPalabras) * log(numDoc/aux->contApariciones);
 }
-
+*/
 // espera a que el usuario presione ENTER
 void esperarEnter() 
 {
@@ -284,16 +284,19 @@ void mostrarDocumentosOrdenados(TreeMap * mapalibros){
     }
 }
 
-void MenuBuscarPalabra(MapasGlobales *mapas){
-    Pair *libros = firstTreeMap(mapas->libros);
+void buscarPalabra(MapasGlobales *mapas){
+    TreeMap *libros = mapas->libros;
     char palabra[128];
+    Pair *aux;
+    Libro *data;
+
     printf("Ingrese la palabra que se quiere buscar");
     scanf("%s\n",&palabra);
     Pair *aux = libros;
 
     while(1){
-        aux = searchTreeMap(mapas->libros,palabra);
-        Libro *data = aux->value;
+        aux = searchTreeMap(libros,palabra);
+        data = aux->value;
         if(aux == NULL){
             break;
         }
