@@ -18,7 +18,6 @@ typedef struct{                             // struct para guardar los datos de 
 typedef struct{                             // struct para guardar las apariciones de cada palabra
     char *palabra;
     Libro *libro;                            // libro asociado al struct
-    unsigned long cont;
     List *posiciones;                       // lista con las posiciones en donde se encuentra la palabra en el libro
     int relevancia;                         //relevancia de la palabra
 }Palabra;
@@ -31,6 +30,14 @@ typedef struct
 } MapasGlobales;
 
 void buscarPalabra(MapasGlobales *);
+void menuBuscarFrecuencia(MapasGlobales *);
+void menuBuscarRelevancia(MapasGlobales *);
+void menuBuscarApariciones(MapasGlobales *);
+void menuMostrarContexto(MapasGlobales *);
+void submenuPalabras(MapasGlobales *);
+void submenuLibros(MapasGlobales *);
+void menuImportarDocumentos(MapasGlobales *);
+void menuMostrarDocumentosOrdenados(TreeMap *);
 
 int stringEqual(const void * key1, const void * key2) {
     const char * A = key1;
@@ -68,22 +75,7 @@ char* quitar_caracteres(char* string, char* c){
 
     return string;
 }
-/*lo que falla es que estamos entregando los arboles con la informacion hay que sacar en especifico lo que necesitamos
-por lo tanto, o lo pasamos desde el importar o pasamos las llaves para buscarlo aca dentro*/
-// void calcularRelevancia(Pair *data,Libro *libro, int numDoc){  //(creo que no) funciona, (creo que *Libro y *Palabra estan mal definidas (se me quema el cerebro))
-//     List *aux = data->value->posiciones;
-//     int cont;
 
-//     firstList(aux);
-//     while(aux != NULL){    //ta malo, me borraron list apariciones, hay que sacar el numero de documentos en los que aparece
-//         cont++;
-//         nextList(aux);
-//     }
-
-//     //data->value->relevancia = (data->value->cont/libros->cantPalabras) * log(numDoc/cont); crear una función para encontrar apariciones
-// }
-
-// espera a que el usuario presione ENTER
 void esperarEnter() 
 {
     printf("Presione ENTER para continuar\n");
@@ -95,11 +87,6 @@ int lower_than(void *key1, void *key2)
     if (strcmp(key1, key2) < 0) return 1;
     return 0;
 }
-
-void submenuPalabras(MapasGlobales *);
-void submenuLibros(MapasGlobales *);
-void menuImportarDocumentos(MapasGlobales *);
-void menuMostrarDocumentosOrdenados(TreeMap *);
 
 int main()
 {
@@ -156,13 +143,19 @@ void submenuPalabras(MapasGlobales *mapas){
 
         scanf("%i", &opcion);
 
-        // if(opcion == 1) buscarFrecuencia();
-        // else if(opcion == 2) buscarRelevancia();
-        // else if(opcion == 3) buscarApariciones();
-        // else if(opcion == 4) mostrarContexto();
+        if(opcion == 1) menuBuscarFrecuencia(mapas);
+        else if(opcion == 2) menuBuscarRelevancia(mapas);
+        else if(opcion == 3) menuBuscarApariciones(mapas);
+        else if(opcion == 4) menuMostrarContexto(mapas);
         else if(opcion == 0) break;
         else printf("La opción seleccionada no es valida\n");
     }
+}
+
+void calcularRelevancia(Pair *data,Libro *libro, int numDoc){
+    Palabra *aux = data->value;
+    int cont = countList(aux->posiciones);
+    aux->relevancia = (cont / libro->cantPalabras) * log(numDoc / cont);
 }
 
 Libro *cargarLibro(char *titulo, char* id, TreeMap *mapaPalabra){
@@ -232,19 +225,17 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
         while(palabra){
             long posAux = ftell(fp);
             cantPalabras++;
-            cantCarac += strlen(palabra) + 1;
+            cantCarac += strlen(palabra) + 1; // incluye espacios
             
             /*Palabra *aux = searchTreeMap(mapaPalabra, palabra);*/
             Pair *search = searchTreeMap(mapaPalabra, palabra);
             Palabra *aux;
             if(search){
                 aux = search->value;
-                aux->cont++;
             }
             else{
                 aux = (Palabra *) malloc (sizeof(Palabra));
                 aux->posiciones = createList();
-                aux->cont = 1;
                 aux->palabra = strdup(palabra);
                 insertTreeMap(mapaPalabra,palabra,aux);
                 agregarMapaGlobal(mapasGlobales->palabras, palabra, libro);
@@ -257,7 +248,7 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
             palabra = next_word(fp);
         }
 
-        libro->cantCarac = cantCarac;
+        libro->cantCarac = cantCarac - 1; // elimina espacio extra
         libro->cantPalabras = cantPalabras;
         insertTreeMap(mapasGlobales->libros,libro->titulo,libro);
         mapasGlobales->numDoc += 1;
@@ -265,8 +256,9 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
         fclose(fp);
 
         //Pair *auxRelev = firstMap(mapasGlobales->palabras);
-        // while(mapasGlobales->palabras != NULL){    //se me quema el cerebro ayuda, muchos mapas
-        //      calcularRelevancia(auxRelev,libro,mapasGlobales->numDoc);
+        // while(auxRelev != NULL){    //se me quema el cerebro ayuda, muchos mapas
+        //      int cont = buscarPalabra(auxRelev->key,mapasGlobales);
+        //      menuCalcularRelevancia(auxRelev,libro,mapasGlobales->numDoc,cont);
         //      auxRelev = nextTreeMap(mapasGlobales->palabras);
         // }
 
@@ -289,7 +281,7 @@ void menuMostrarDocumentosOrdenados(TreeMap * mapalibros){
     }
 }
 
-// 
+// funciona
 void buscarPalabra(MapasGlobales *mapas){
     char input[128];
 
@@ -309,4 +301,79 @@ void buscarPalabra(MapasGlobales *mapas){
     }
 
     esperarEnter();
+}
+
+void menuBuscarTitulo(TreeMap *mapa){
+    char clave[1024];
+    Pair *n = firstTreeMap(mapa);
+    char *titulo;
+    char *token;
+    List *palabras = (List *) malloc(sizeof(List *));
+    List *titulosCorrectos = (List *) malloc(sizeof(List *));
+    char *p;
+    char cero[2] = "0";
+
+    printf("ingrese las palabras que desea buscar, para dejar de ingresar escriba 0\n");
+    while(1){
+        scanf("%99[^\n]", &clave);
+        
+        if(strcmp(clave,cero) == 0)break;
+        pushFront(palabras,clave);
+        printf("ingrese otra palabra o ingrese 0");
+    }
+
+    while(1){
+        titulo = strtok(n->key,",");
+        p = firstList(palabras);
+        token = strtok(titulo," ");
+        while (titulo != NULL)
+        {
+            if(strcmp(p,token) == 0){
+                popCurrent(palabras);
+                p = firstList(palabras);
+            }
+            else if(p = NULL){
+                p = firstList(palabras);
+                token = strtok(titulo," ");
+            }
+            else p = nextList(palabras);
+        }
+        
+        p = firstList(palabras);
+        if(p == NULL) pushFront(titulosCorrectos, n->key);
+
+        n = nextTreeMap(mapa);
+        if(n == NULL)break;
+    }
+
+    p = firstList(titulosCorrectos);
+    if(p == NULL){
+        printf("no se encontro ningun titulo con las palabras especificadas");
+    }
+    else{
+        while(p != NULL){
+            printf("%s",p);
+            p = nextList(titulosCorrectos);
+        }
+    }
+}
+
+void menuBuscarFrecuencia(MapasGlobales *mapas)
+{
+
+}
+
+void menuBuscarRelevancia(MapasGlobales *mapas)
+{
+
+}
+
+void menuBuscarApariciones(MapasGlobales *mapas)
+{
+
+}
+
+void menuMostrarContexto(MapasGlobales *mapas)
+{
+
 }

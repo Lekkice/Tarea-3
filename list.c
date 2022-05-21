@@ -153,3 +153,8 @@ void cleanList(List * list) {
         popFront(list);
     }
 }
+
+int countList(List *list)
+{
+    return list->contador;
+}
