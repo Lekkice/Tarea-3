@@ -45,30 +45,20 @@ char* next_word (FILE *fp) {
         return NULL;
 }
 
-int hayQueEliminar(char c, char* string_chars){
-    for(int i=0 ; i<strlen(string_chars) ; i++){
-        if(string_chars[i]==c) return 1;
-    }
-    return 0;
-}
-
-char* quitar_caracteres(char* string, char* c){
+char* quitarSimbolos(char* string){
     int i;
-    int j;
-    for(i=0 ; i < strlen(string) ; i++){
-        if(hayQueEliminar(string[i], c)){
-            for(j=i ; j<strlen(string)-1 ;j++){
-                string[j] = string[j+1];
+    for(i=0 ; i < strlen(string) ; i++)
+    {
+        if (!isalpha(string[i])) // si el caracter no es un alphabet
+        {
+            string[i] = '\0'; // termina el string
+            break;
         }
-        string[j]='\0';
-        i--;
     }
-    }
-
     return string;
 }
 
-void esperarEnter() 
+void esperarEnter()
 {
     printf("Presione ENTER para continuar\n");
     getchar();getchar();
@@ -253,6 +243,7 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
 
         char *palabra = next_word(fp);
         while(palabra){
+            palabra = quitarSimbolos(palabra);
             long posAux = ftell(fp);
             cantPalabras++;
             cantCarac += strlen(palabra) + 1;
@@ -453,24 +444,29 @@ void menuBuscarRelevancia(MapasGlobales *mapas)
 
 void imprimirContexto(FILE *fp, long pos)
 {
-    long auxPos = pos - 50;
+    long auxPos = pos - 75;
     if (auxPos < 0) auxPos = 0;
     fseek(fp, auxPos, SEEK_SET);
 
-    char string[110];
-    int size = 100;
+    char *string;
+    int size = 150;
+    int len;
     printf("... ");
+    next_word(fp);
     while (size > 0)
     {
-        fgets(string, size, fp);
+        string = next_word(fp);
+        len = strlen(string);
+        if (len > size) break;
         size -= strlen(string)+1;
         for (int i=0; i<strlen(string); i++) // elimina newlines
         {
             if (string[i] == '\n') string[i] = ' ';
         }
-        printf("%s", string);
+        printf("%s ", string);
+        free(string);
     }
-    printf(" ...\n\n");
+    printf("...\n\n");
 }
 
 // funciona
