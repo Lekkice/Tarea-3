@@ -120,7 +120,7 @@ void submenuLibros(MapasGlobales *mapas){
         scanf("%i", &opcion);
 
         if(opcion == 1)mostrarDocumentosOrdenados(mapas->libros);
-        else if(opcion == 2)menuBuscarTitulo();
+        else if(opcion == 2)menuBuscarTitulo(mapas->libros);
         else if(opcion == 0)break;
         else printf("La opción seleccionada no valida\n");
     }
