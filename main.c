@@ -51,12 +51,12 @@ char* quitarSimbolos(char* string){
     {
         if (!isalpha(string[i])) // si el caracter no es un alphabet
         {
+            printf("%s %i\n", string, i);
             string[i] = '\0'; // termina el string
             break;
         }
     }
     if (!strlen(string)) return NULL;
-    return string;
 }
 
 void esperarEnter()
@@ -242,31 +242,34 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
 
         char *palabra = next_word(fp);
         while(palabra){
-            palabra = quitarSimbolos(palabra);
-            if (!palabra) continue;
+            cantCarac += strlen(palabra) + 1;
+            palabra = aMinus(palabra);
+            quitarSimbolos(palabra);
+            if (searchTreeMap(bloqueo, palabra) || strlen(palabra) < 2)
+            {
+                palabra = next_word(fp);
+                continue;
+            }
+
             long posAux = ftell(fp);
             cantPalabras++;
-            cantCarac += strlen(palabra) + 1;
             
-            palabra = aMinus(palabra);
             Pair *search = searchTreeMap(mapaPalabra, palabra);
             Palabra *aux;
 
-            if(!searchTreeMap(bloqueo,palabra)){
-                if(search){
-                    aux = search->value;
-                    aux->cont++;
-                }
-                else{
-                    aux = (Palabra *) malloc (sizeof(Palabra));
-                    aux->posiciones = createList();
-                    aux->cont = 1;
-                    aux->palabra = strdup(palabra);
-                    strcpy(aux->palabra,palabra);
-                    insertTreeMap(mapaPalabra,palabra,aux);
-                    agregarMapaGlobal(mapasGlobales->palabras, palabra, libro);
-                }
+            if (search){
+                aux = search->value;
+                aux->cont++;
             }
+            else{
+                aux = (Palabra *) malloc (sizeof(Palabra));
+                aux->posiciones = createList();
+                aux->cont = 1;
+                aux->palabra = strdup(palabra);
+                insertTreeMap(mapaPalabra, palabra, aux);
+                agregarMapaGlobal(mapasGlobales->palabras, palabra, libro);
+            }
+            
             
             long *pos = (long *) malloc (sizeof(long));
             *pos = posAux;
@@ -410,26 +413,30 @@ void menuBuscarFrecuencia(MapasGlobales *mapas)
 
     aux = firstTreeMap(libro->palabras);
     Palabra *palabra = aux->value;
-    Palabra *aux2;
 
     TreeMap *palabrasFrecuentes = createTreeMap(lower_than_int); // mapa para ordenar palabras por frecuencia
-
+    int *max = (int *) malloc (sizeof(int));
+    *max = 0;
+    int count;
     while(aux){
         palabra = aux->value;
+        count = countList(palabra->posiciones);
         int *key = (int *) malloc (sizeof(int));
-        *key = palabra->cont;
+        *key = count;
+        if (count > *max) *max = count;
 
         insertTreeMap(palabrasFrecuentes, key, palabra);
         aux = nextTreeMap(libro->palabras);
     }
 
-    aux = firstTreeMap(palabrasFrecuentes);
+    aux = upperBound(palabrasFrecuentes, max);
     printf("Las palabras mas frecuentes son:\n");
     for(int i = 1; i <= 10; i++){
         if (!aux) break;
         palabra = aux->value;
-        printf("%i. %s\n", i, palabra->palabra);
-        aux = nextTreeMap(palabrasFrecuentes);
+        printf("%i. %s %i veces\n", i, palabra->palabra, countList(palabra->posiciones));
+        eraseTreeMap(palabrasFrecuentes, aux->key);
+        aux = upperBound(palabrasFrecuentes, max);
     }
     esperarEnter();
 }
@@ -471,7 +478,6 @@ void menuMostrarContexto(MapasGlobales *mapas){
     char titulo[256];
     char palabraInput[64];
     long *pos;
-    char contexto[100];
 
     getchar();
     printf("Introduzca el título del libro que desea buscar: ");

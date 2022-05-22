@@ -81,7 +81,6 @@ void pushBack(List * list, void * data) {
     list->current = list->tail;
     if(list->current==NULL) pushFront(list,data);
     else pushCurrent(list,data);
-    list->contador++;
 }
 
 void pushCurrent(List * list, void * data) {
@@ -103,13 +102,11 @@ void pushCurrent(List * list, void * data) {
 
 void * popFront(List * list) {
     list->current = list->head;
-    list->contador--;
     return popCurrent(list);
 }
 
 void * popBack(List * list) {
     list->current = list->tail;
-    list->contador--;
     return popCurrent(list);
 }
 
