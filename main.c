@@ -136,19 +136,11 @@ void submenuPalabras(MapasGlobales *mapas){
     int opcion;
 
     while(true){
-<<<<<<< HEAD
         printf("1. Buscar palabra con mas frecuencia\n"); // 4.
         printf("2. Buscar palabra con mas relevancia\n"); // 5.
         printf("3. Buscar una palabra en los documentos\n");  // 6.
         printf("4. Mostrar palabra en contexto\n"); // 7.     
         printf("0. Volver\n");
-=======
-        printf("1. Buscar palabra con mas frecuencia\n");
-        printf("2. Buscar palabra con mas relevancia\n");
-        printf("3. Buscar una palabra en los documentos\n");  //REVISAR URGENTE (no la piden en la tarea, sobra.)
-        printf("4. Mostrar palabra en contexto\n");        
-        printf("0. volver\n");
->>>>>>> 6c8ee6b6b8dc4b0efb915f3e9b2e37e78a450f2c
 
         scanf("%i", &opcion);
 
