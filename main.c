@@ -136,11 +136,19 @@ void submenuPalabras(MapasGlobales *mapas){
     int opcion;
 
     while(true){
+<<<<<<< HEAD
         printf("1. Buscar palabra con mas frecuencia\n"); // 4.
         printf("2. Buscar palabra con mas relevancia\n"); // 5.
         printf("3. Buscar una palabra en los documentos\n");  // 6.
         printf("4. Mostrar palabra en contexto\n"); // 7.     
         printf("0. Volver\n");
+=======
+        printf("1. Buscar palabra con mas frecuencia\n");
+        printf("2. Buscar palabra con mas relevancia\n");
+        printf("3. Buscar una palabra en los documentos\n");  //REVISAR URGENTE (no la piden en la tarea, sobra.)
+        printf("4. Mostrar palabra en contexto\n");        
+        printf("0. volver\n");
+>>>>>>> 6c8ee6b6b8dc4b0efb915f3e9b2e37e78a450f2c
 
         scanf("%i", &opcion);
 
@@ -191,37 +199,21 @@ char *aMinus(char *string)
 
 void crearListaBloqueo(TreeMap *map){ //MAS MAPAAAAAS, VAMOOOOO
     insertTreeMap(map,"the",NULL);
-    insertTreeMap(map,"The",NULL);
     insertTreeMap(map,"and",NULL);
-    insertTreeMap(map,"And",NULL);
     insertTreeMap(map,"for",NULL);
-    insertTreeMap(map,"For",NULL);
     insertTreeMap(map,"is",NULL);
-    insertTreeMap(map,"Is",NULL);
     insertTreeMap(map,"was",NULL);
-    insertTreeMap(map,"Was",NULL);
     insertTreeMap(map,"were",NULL);
-    insertTreeMap(map,"Were",NULL);
     insertTreeMap(map,"his",NULL);
-    insertTreeMap(map,"His",NULL);
     insertTreeMap(map,"she",NULL);
-    insertTreeMap(map,"She",NULL);
     insertTreeMap(map,"him",NULL);
-    insertTreeMap(map,"Him",NULL);
     insertTreeMap(map,"her",NULL);
-    insertTreeMap(map,"Her",NULL);
     insertTreeMap(map,"they",NULL);
-    insertTreeMap(map,"They",NULL);
     insertTreeMap(map,"but",NULL);
-    insertTreeMap(map,"But",NULL);
     insertTreeMap(map,"at",NULL);
-    insertTreeMap(map,"At",NULL);
     insertTreeMap(map,"a",NULL);
-    insertTreeMap(map,"A",NULL);
     insertTreeMap(map,"to",NULL);
-    insertTreeMap(map,"To",NULL);
     insertTreeMap(map,"that",NULL);
-    insertTreeMap(map,"That",NULL);
 }
 
 void menuImportarDocumentos(MapasGlobales *mapasGlobales){
@@ -426,7 +418,7 @@ void menuBuscarFrecuencia(MapasGlobales *mapas)
     char id[16];
     Pair *aux = firstTreeMap(mapas->libros);
     Libro *libro = aux->value;
-
+    
     printf("ingrese el id del libro que desea buscar\n");
     scanf("%s",id);
 
@@ -437,7 +429,7 @@ void menuBuscarFrecuencia(MapasGlobales *mapas)
             libro = aux->value;
         }
     }
-
+    printf("paso el primer while");
     aux = firstTreeMap(libro->palabras);
     Palabra *palabras = aux->value;
     List *palabrasFrecuentes = createList();
