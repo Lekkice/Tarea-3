@@ -319,6 +319,7 @@ void menuBuscarTitulo(TreeMap *mapaLibros){
         pushFront(palabras,clave);
         printf("ingrese otra palabra o ingrese 0");
     }
+    printf("chapalele");
 
     while(1){
         titulo = strtok(n->key,",");
@@ -374,7 +375,7 @@ void menuBuscarApariciones(MapasGlobales *mapas)
 void menuMostrarContexto(MapasGlobales *mapas){
     char titulo[128];
     char palabra[64];
-    int pos;
+    long pos;
 
     printf("ingrese el titulo del libro a buscar");
     scanf("%[\n]s",&titulo);
@@ -391,11 +392,13 @@ void menuMostrarContexto(MapasGlobales *mapas){
         Libro* auxStruct = aux->value;
         TreeMap *mapaPalabras = auxStruct->palabras;
         if(searchTreeMap(mapaPalabras,palabra) != NULL){
-            List *palabra = mapaPalabras;
-            pos = firstList(palabra);
+            aux = firstTreeMap(mapaPalabras);
+            Palabra *laMamaDeLaMama = aux->value;
+            List *palabraPos = laMamaDeLaMama->posiciones;
+            pos = firstList(palabraPos);
             while(pos != 0){
                 fseek(fp,-10,pos);
-                pos = nextList(palabra);
+                pos = nextList(palabraPos);
             }
         }
     }
