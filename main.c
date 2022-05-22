@@ -83,6 +83,7 @@ void submenuPalabras(MapasGlobales *);
 void submenuLibros(MapasGlobales *);
 void menuImportarDocumentos(MapasGlobales *);
 void mostrarDocumentosOrdenados(TreeMap *);
+void menuBuscarTitulo(TreeMap *);
 void menuBuscarFrecuencia(MapasGlobales *);
 void menuBuscarRelevancia(MapasGlobales *);
 void menuBuscarApariciones(MapasGlobales *);
