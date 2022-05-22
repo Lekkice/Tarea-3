@@ -412,7 +412,7 @@ void menuBuscarFrecuencia(MapasGlobales *mapas)
             libro = aux->value;
         }
     }
-
+    printf("paso el primer while");
     aux = firstTreeMap(libro->palabras);
     Palabra *palabras = aux->value;
     List *palabrasFrecuentes = createList();
