@@ -11,8 +11,8 @@
 typedef struct{                             // struct para guardar los datos de cada libro
     char titulo[256];
     char id[16];
-    unsigned long cantPalabras;
-    unsigned long long cantCarac;           // cantidad de caracteres
+    long cantPalabras;
+    long cantCarac;           // cantidad de caracteres
     TreeMap *palabras;
     TreeMap *keywords;
 }Libro;
@@ -55,6 +55,7 @@ char* quitarSimbolos(char* string){
             break;
         }
     }
+    if (!strlen(string)) return NULL;
     return string;
 }
 
@@ -87,6 +88,7 @@ int main()
     MapasGlobales *mapas = (MapasGlobales *) malloc (sizeof(MapasGlobales));
     mapas->libros = createTreeMap(lower_than);
     mapas->palabras = createTreeMap(lower_than);
+    mapas->numDoc = 0;
 
     while(true){
         printf("1. Cargar documentos\n"); // 1.
@@ -143,9 +145,9 @@ void submenuPalabras(MapasGlobales *mapas){
     }
 }
 
-/*void calcularRelevancia(Pair *data,Libro *libro, int numDoc){ 
+/*void calcularRelevancia(Pair *data,Libro *libro, int numDoc){
     Palabra *aux = data->value;
-    aux->relevancia = (aux->cont/libro->cantPalabras) * log(numDoc/aux->contApariciones);
+    aux->relevancia = (aux->cont/libro->cantPalabras) * log(numDoc/countList(aux->posiciones));
 }*/
 
 Libro *cargarLibro(char *titulo, char* id, TreeMap *mapaPalabra){
@@ -180,22 +182,12 @@ char *aMinus(char *string)
 
 
 void crearListaBloqueo(TreeMap *map){ //MAS MAPAAAAAS, VAMOOOOO
-    insertTreeMap(map,"the",NULL);
-    insertTreeMap(map,"and",NULL);
-    insertTreeMap(map,"for",NULL);
-    insertTreeMap(map,"is",NULL);
-    insertTreeMap(map,"was",NULL);
-    insertTreeMap(map,"were",NULL);
-    insertTreeMap(map,"his",NULL);
-    insertTreeMap(map,"she",NULL);
-    insertTreeMap(map,"him",NULL);
-    insertTreeMap(map,"her",NULL);
-    insertTreeMap(map,"they",NULL);
-    insertTreeMap(map,"but",NULL);
-    insertTreeMap(map,"at",NULL);
-    insertTreeMap(map,"a",NULL);
-    insertTreeMap(map,"to",NULL);
-    insertTreeMap(map,"that",NULL);
+    insertTreeMap(map,"the",NULL); insertTreeMap(map,"and",NULL); insertTreeMap(map,"for",NULL);
+    insertTreeMap(map,"is",NULL); insertTreeMap(map,"was",NULL); insertTreeMap(map,"were",NULL);
+    insertTreeMap(map,"his",NULL); insertTreeMap(map,"she",NULL); insertTreeMap(map,"him",NULL); 
+    insertTreeMap(map,"her",NULL); insertTreeMap(map,"they",NULL); insertTreeMap(map,"but",NULL); 
+    insertTreeMap(map,"at",NULL); insertTreeMap(map,"a",NULL); insertTreeMap(map,"to",NULL); 
+    insertTreeMap(map,"that",NULL); insertTreeMap(map,"you",NULL);
 }
 
 void menuImportarDocumentos(MapasGlobales *mapasGlobales){
@@ -237,18 +229,18 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
         titulo = titulo+34; // elimina la parte de "The Project Gutenberg eBook"
 
         char *id = strtok(archivo, ".");
-        unsigned int cantPalabras = 0;
-        unsigned int cantCarac = 0;
+        long cantPalabras = 0;
+        long cantCarac = 0;
         Libro *libro = cargarLibro(titulo,id,mapaPalabra);
 
         char *palabra = next_word(fp);
         while(palabra){
             palabra = quitarSimbolos(palabra);
+            if (!palabra) continue;
             long posAux = ftell(fp);
             cantPalabras++;
             cantCarac += strlen(palabra) + 1;
             
-            /*Palabra *aux = searchTreeMap(mapaPalabra, palabra);*/
             palabra = aMinus(palabra);
             Pair *search = searchTreeMap(mapaPalabra, palabra);
             Palabra *aux;
@@ -318,14 +310,11 @@ void menuBuscarPalabra(MapasGlobales *mapas){
     scanf("%s",&input);
     Pair *aux = searchTreeMap(mapas->palabras, input); if (!aux) return;
     List *listaLibros = aux->value;
-    //TreeMap *mapa;
     Libro *libro = firstList(listaLibros);
 
     while (libro)
     {
-        //Palabra *palabra = (Pair *) searchTreeMap(mapa, input) -> value;
         printf("Libro: %s\n", libro->titulo);
-
         libro = nextList(listaLibros);
     }
     esperarEnter();
@@ -402,7 +391,7 @@ void menuBuscarFrecuencia(MapasGlobales *mapas)
     Pair *aux = firstTreeMap(mapas->libros);
     Libro *libro = aux->value;
     
-    printf("ingrese el id del libro que desea buscar\n");
+    printf("Introduzca el id del libro que desea buscar\n");
     scanf("%s",id);
 
     while(1){
