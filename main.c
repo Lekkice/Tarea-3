@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <ctype.h>
 #include <string.h>
 #include <math.h>
 #include "treemap.h"
@@ -13,6 +14,7 @@ typedef struct{                             // struct para guardar los datos de 
     unsigned long cantPalabras;
     unsigned long long cantCarac;           // cantidad de caracteres
     TreeMap *palabras;
+    TreeMap *keywords;
 }Libro;
 
 typedef struct{                             // struct para guardar las apariciones de cada palabra
@@ -147,7 +149,7 @@ void submenuPalabras(MapasGlobales *mapas){
         else if(opcion == 3)menuBuscarPalabra(mapas);
         else if(opcion == 4)menuMostrarContexto(mapas);
         else if(opcion == 0)break;
-        else printf("opcion seleccionada no valida\n");
+        else printf("Opción seleccionada no valida\n");
     }
 }
 
@@ -179,6 +181,16 @@ void agregarMapaGlobal(TreeMap *mapa, char *tituloLibro, Palabra *palabra)
     insertTreeMap(map, tituloLibro, palabra);
 }
 
+char *aMinus(char *string)
+{
+    for (int i=0; i<strlen(string); i++)
+    {
+        string[i] = tolower(string[i]);
+    }
+    return string;
+}
+
+
 void crearListaBloqueo(TreeMap *map){ //MAS MAPAAAAAS, VAMOOOOO
     insertTreeMap(map,"the",NULL);
     insertTreeMap(map,"and",NULL);
@@ -205,9 +217,7 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
 
     printf("Ingrese el nombre del o los libros separados por un espacio con la extension .txt: ");
     getchar();
-    scanf("%99[^\n]", &idLibros);
-    printf("Su seleccion de documentos a sido registrada, por favor espere a que termine el proceso de carga\n");
-    printf("*suena una musica de ascensor*\n");
+    scanf("%99[^\n]", idLibros);
 
     char *token = strtok(idLibros," \n");
     List *archivos = createList();
@@ -249,6 +259,7 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
             cantCarac += strlen(palabra) + 1;
             
             /*Palabra *aux = searchTreeMap(mapaPalabra, palabra);*/
+            palabra = aMinus(palabra);
             Pair *search = searchTreeMap(mapaPalabra, palabra);
             Palabra *aux; // lo que hice antes en agregarMapaGlobal
 
@@ -279,12 +290,14 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
 
         fclose(fp);
 
-        //Pair *auxRelev = firstMap(mapasGlobales->palabras);
-        // while(auxRelev != NULL){    //se me quema el cerebro ayuda, muchos mapas
-        //      int cont = buscarPalabra(auxRelev->key,mapasGlobales);
-        //      menuCalcularRelevancia(auxRelev,libro,mapasGlobales->numDoc,cont);
-        //      auxRelev = nextTreeMap(mapasGlobales->palabras);
-        // }
+        TreeMap *keywords = createTreeMap(lower_than);
+        char *token = strtok(titulo,", ’ ");
+        while (token)
+        {
+            insertTreeMap(keywords, aMinus(token), NULL); // sólo se necesita el token
+            token = strtok(NULL,", ’ ");
+        }
+        libro->keywords = keywords;
 
         printf("Libro %s cargado\n", libro->titulo);
         archivo = nextList(archivos);
@@ -313,7 +326,7 @@ void menuBuscarPalabra(MapasGlobales *mapas){
     Libro *data;
 
     printf("Ingrese la palabra que se quiere buscar");
-    scanf("%s\n",&palabra);
+    scanf("%s\n", palabra);
 
     while(1){
         aux = searchTreeMap(libros,palabra);
@@ -331,53 +344,69 @@ void menuBuscarPalabra(MapasGlobales *mapas){
 
 }
 
+List *separarEnClaves(char *string)
+{
+    List *lista = createList();
+    char *token = strtok(string, ", ’ \n");
+    while(token){
+        pushFront(lista,aMinus(token));
+        token = strtok(NULL, ", ’ \n");
+    }
+    return lista;
+}
+
+List *buscarPalabrasClaves(TreeMap *mapaLibros, List *palabras)
+{
+    List *titulos = createList();
+    char *palabra;
+    Pair *aux = firstTreeMap(mapaLibros);
+    Libro *libro;
+    Pair *search;
+    TreeMap *keywords;
+
+    while(aux){
+        libro = aux->value;
+        keywords = libro->keywords;
+        
+        int flag = 0;
+        palabra = firstList(palabras);
+        while (palabra)
+        {
+            search = searchTreeMap(keywords, palabra);
+            if (!search) {
+                flag = 1; break;
+            }
+            palabra = nextList(palabras);
+        }
+        if (flag) continue;
+        pushFront(titulos, libro->titulo);
+        aux = nextTreeMap(mapaLibros);
+    }
+    return titulos;
+}
+
 void menuBuscarTitulo(TreeMap *mapaLibros){
     char clave[1024];
-    Pair *n = firstTreeMap(mapaLibros);
-    char *titulo;
-    char *token;
-    List *palabras = (List *) malloc(sizeof(List *));
-    List *titulosCorrectos = (List *) malloc(sizeof(List *));
-    char *p;
-    char cero[2] = "0";
 
-    printf("ingrese las palabras que desea buscar\n");
-    scanf("%s", &clave);
-    while(1){
-        if(strcmp(clave,cero) == 0)break;
-        pushFront(palabras,clave);
-        printf("ingrese otra palabra o ingrese 0: \n");
-        scanf("%s", &clave);
-    }
+    printf("Introduzca el título que desea buscar, puede utilizar palabras clave\n");
+    getchar();
+    fgets(clave, 256, stdin);
 
-    while(1){
-        titulo = strtok(n->key,",");
-        p = firstList(palabras);
-        token = strtok(titulo," ");
-        printf("antes del while");
-        while (token != NULL)
-        {
-            if(strcmp(p,token) == 0)p = nextList(palabras);
-            else if(p == NULL)break;
-            else token = strtok(titulo," ");
-        }
-        printf("despues del while");
-        if(p == NULL) pushFront(titulosCorrectos, n->key);
+    List *palabras = separarEnClaves(clave);
 
-        n = nextTreeMap(mapaLibros);
-        if(n == NULL)break;
-    }
+    List *titulosCorrectos = buscarPalabrasClaves(mapaLibros, palabras);
 
-    p = firstList(titulosCorrectos);
+    Libro *p = firstList(titulosCorrectos);
     if(p == NULL){
-        printf("no se encontro ningun titulo con las palabras especificadas");
+        printf("No se encontró título con las palabras especificadas\n");
+        return;
     }
-    else{
-        while(p != NULL){
-            printf("%s",p);
-            p = nextList(titulosCorrectos);
-        }
+
+    while(p != NULL){
+        printf("%s\n",p->titulo);
+        p = nextList(titulosCorrectos);
     }
+    esperarEnter();
 }
 
 void menuBuscarFrecuencia(MapasGlobales *mapas)
@@ -426,49 +455,77 @@ void menuBuscarRelevancia(MapasGlobales *mapas)
 
 }
 
+void menuBuscarApariciones(MapasGlobales *mapas)
+{
+
+}
+
+void imprimirContexto(FILE *fp, long pos)
+{
+    long auxPos = pos - 50;
+    if (auxPos < 0) auxPos = 0;
+    fseek(fp, auxPos, SEEK_SET);
+
+    char string[110];
+    int size = 100;
+    printf("... ");
+    while (size > 0)
+    {
+        fgets(string, size, fp);
+        size -= strlen(string)+1;
+        for (int i=0; i<strlen(string); i++) // elimina newlines
+        {
+            if (string[i] == '\n') string[i] = ' ';
+        }
+        printf("%s", string);
+    }
+    printf(" ...\n\n");
+}
+
+// funciona
 void menuMostrarContexto(MapasGlobales *mapas){
     char titulo[256];
-    char palabra[64];
+    char palabraInput[64];
     long *pos;
     char contexto[100];
 
-    printf("ingrese el titulo del libro a buscar\n");
     getchar();
-    scanf("%99[^\n]",&titulo);
-    printf("ingrese la palabra que desea buscar\n");
-    getchar();
-    scanf("%99[^\n]",&palabra);
+    printf("Introduzca el título del libro que desea buscar: ");
+    fgets(titulo, 256, stdin);
+    
+    printf("Introduzca la palabra que desea buscar: ");
+    fgets(palabraInput, 64, stdin);
+    char *palabra = strtok(palabraInput, "\n"); // elimina el \n al final
+    aMinus(palabra);
 
-    Pair *aux = searchTreeMap(mapas->libros,titulo);
-    Libro *libro = aux->value;
+    List *clavesTitulo = separarEnClaves(titulo);
+    Libro *libro = firstList(buscarPalabrasClaves(mapas->libros, clavesTitulo));
 
-    printf("%s\n",libro->id);
+    if(libro){
+        char *archivo = strdup("Libros\\");
+        strcat(archivo, libro->id);
+        strcat(archivo, ".txt");
+        FILE *fp = fopen(archivo,"r");
+        TreeMap *mapaPalabras = libro->palabras;
 
-    if(aux){
-        FILE *fp = fopen(libro->id,"r");
-        Libro* auxStruct = aux->value;
-        TreeMap *mapaPalabras = auxStruct->palabras;
-        if(searchTreeMap(mapaPalabras,palabra) != NULL){
-            aux = firstTreeMap(mapaPalabras);
-            Palabra *laMamaDeLaMama = aux->value;
-            List *palabraPos = laMamaDeLaMama->posiciones;
-            pos = firstList(palabraPos);
-            while(pos != NULL){
-                fseek(fp,(*pos)-5,SEEK_SET);
-                //printf("%l\n",pos);
-                fscanf(fp,"%99s",contexto);
-                printf("%s\n",contexto);
-                pos = nextList(palabraPos);
+        Pair *search = searchTreeMap(mapaPalabras, palabra);
+        if(search){
+            List *apariciones = ((Palabra *)search->value)->posiciones;
+            pos = firstList(apariciones);
+            while(pos){
+                imprimirContexto(fp, *pos);
+                pos = nextList(apariciones);
             }
         }
-        else{
-            printf("no se encontro la palabra buscada");
+        else
+        {
+            printf("La palabra no existe en el libro\n");
             esperarEnter();
             return;
         }
     }
     else{
-        printf("No existe el libro");
+        printf("El libro no existe\n");
         esperarEnter();
         return;
     }
