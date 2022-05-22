@@ -120,7 +120,7 @@ void submenuLibros(MapasGlobales *mapas){
         scanf("%i", &opcion);
 
         if(opcion == 1)mostrarDocumentosOrdenados(mapas->libros);
-        /*else if(opcion == 2)menuBuscarTitulo();*/
+        else if(opcion == 2)menuBuscarTitulo();
         else if(opcion == 0)break;
         else printf("La opción seleccionada no valida\n");
     }
@@ -181,6 +181,8 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
     printf("Ingrese el nombre del o los libros separados por un espacio con la extension .txt: ");
     getchar();
     scanf("%99[^\n]", &idLibros);
+    printf("Su seleccion de documentos a sido registrada, por favor espere a que termine el proceso de carga\n");
+    printf("*suena una musica de acensor\n");
 
     char *token = strtok(idLibros," \n");
     List *archivos = createList();
@@ -375,7 +377,7 @@ void menuBuscarApariciones(MapasGlobales *mapas)
 void menuMostrarContexto(MapasGlobales *mapas){
     char titulo[128];
     char palabra[64];
-    long pos;
+    long *pos;
 
     printf("ingrese el titulo del libro a buscar");
     scanf("%[\n]s",&titulo);
@@ -396,8 +398,8 @@ void menuMostrarContexto(MapasGlobales *mapas){
             Palabra *laMamaDeLaMama = aux->value;
             List *palabraPos = laMamaDeLaMama->posiciones;
             pos = firstList(palabraPos);
-            while(pos != 0){
-                fseek(fp,-10,pos);
+            while(pos != NULL){
+                fseek(fp,-10,*pos);
                 pos = nextList(palabraPos);
             }
         }
