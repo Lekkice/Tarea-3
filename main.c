@@ -136,7 +136,7 @@ void submenuPalabras(MapasGlobales *mapas){
     while(true){
         printf("1. Buscar palabra con mas frecuencia\n");
         printf("2. Buscar palabra con mas relevancia\n");
-        printf("3. Buscar apariciones de una palabra en los documentos\n");  //REVISAR URGENTE (no la piden en la tarea, sobra.)
+        printf("3. Buscar una palabra en los documentos\n");  //REVISAR URGENTE (no la piden en la tarea, sobra.)
         printf("4. Mostrar palabra en contexto\n");        
         printf("0. volver\n");
 
@@ -144,7 +144,7 @@ void submenuPalabras(MapasGlobales *mapas){
 
         if(opcion == 1)menuBuscarFrecuencia(mapas);
         else if(opcion == 2)menuBuscarRelevancia(mapas);
-        //else if(opcion == 3)menuBuscarApariciones(mapas);
+        else if(opcion == 3)menuBuscarPalabra(mapas);
         else if(opcion == 4)menuMostrarContexto(mapas);
         else if(opcion == 0)break;
         else printf("opcion seleccionada no valida\n");
@@ -181,37 +181,21 @@ void agregarMapaGlobal(TreeMap *mapa, char *tituloLibro, Palabra *palabra)
 
 void crearListaBloqueo(TreeMap *map){ //MAS MAPAAAAAS, VAMOOOOO
     insertTreeMap(map,"the",NULL);
-    insertTreeMap(map,"The",NULL);
     insertTreeMap(map,"and",NULL);
-    insertTreeMap(map,"And",NULL);
     insertTreeMap(map,"for",NULL);
-    insertTreeMap(map,"For",NULL);
     insertTreeMap(map,"is",NULL);
-    insertTreeMap(map,"Is",NULL);
     insertTreeMap(map,"was",NULL);
-    insertTreeMap(map,"Was",NULL);
     insertTreeMap(map,"were",NULL);
-    insertTreeMap(map,"Were",NULL);
     insertTreeMap(map,"his",NULL);
-    insertTreeMap(map,"His",NULL);
     insertTreeMap(map,"she",NULL);
-    insertTreeMap(map,"She",NULL);
     insertTreeMap(map,"him",NULL);
-    insertTreeMap(map,"Him",NULL);
     insertTreeMap(map,"her",NULL);
-    insertTreeMap(map,"Her",NULL);
     insertTreeMap(map,"they",NULL);
-    insertTreeMap(map,"They",NULL);
     insertTreeMap(map,"but",NULL);
-    insertTreeMap(map,"But",NULL);
     insertTreeMap(map,"at",NULL);
-    insertTreeMap(map,"At",NULL);
     insertTreeMap(map,"a",NULL);
-    insertTreeMap(map,"A",NULL);
     insertTreeMap(map,"to",NULL);
-    insertTreeMap(map,"To",NULL);
     insertTreeMap(map,"that",NULL);
-    insertTreeMap(map,"That",NULL);
 }
 
 void menuImportarDocumentos(MapasGlobales *mapasGlobales){
