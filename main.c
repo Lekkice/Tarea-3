@@ -427,7 +427,43 @@ void menuBuscarTitulo(TreeMap *mapaLibros){
 
 void menuBuscarFrecuencia(MapasGlobales *mapas)
 {
+    char id[16];
+    Pair *aux = firstTreeMap(mapas->libros);
+    Libro *libro = aux->value;
 
+    printf("ingrese el id del libro que desea buscar\n");
+    scanf("%s",id);
+
+    while(1){
+        if(strcmp(id,libro->id) == 0)break;
+        else{
+            aux = nextTreeMap(mapas->libros);
+            libro = aux->value;
+        }
+    }
+
+    aux = firstTreeMap(libro->palabras);
+    Palabra *palabras = aux->value;
+    List *palabrasFrecuentes = createList();
+    Palabra *aux2;
+
+    while(palabras != NULL){
+        aux2 = firstList(palabrasFrecuentes);
+        for(int i = 0; i < 10; i++){
+            if(aux2 == NULL)pushBack(palabrasFrecuentes,palabras);
+            else if(palabras->cont > aux2->cont)pushCurrent(palabrasFrecuentes,palabras);
+            else aux2 = nextList(palabrasFrecuentes);
+        }
+        aux = nextTreeMap(libro->palabras);
+        palabras = aux->value;
+    }
+
+    aux2 = firstList(palabrasFrecuentes);
+    printf("las palabras mas frecuentes son\n");
+    for(int i = 0; i < 10; i++){
+        printf("%i. %s",(i+1),aux2->palabra);
+        aux2 = nextList(palabrasFrecuentes);
+    }
 }
 
 void menuBuscarRelevancia(MapasGlobales *mapas)
