@@ -187,7 +187,7 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
     getchar();
     scanf("%99[^\n]", &idLibros);
     printf("Su seleccion de documentos a sido registrada, por favor espere a que termine el proceso de carga\n");
-    printf("*suena una musica de acensor\n");
+    printf("*suena una musica de ascensor*\n");
 
     char *token = strtok(idLibros," \n");
     List *archivos = createList();
@@ -318,13 +318,13 @@ void menuBuscarTitulo(TreeMap *mapaLibros){
     char *p;
     char cero[2] = "0";
 
-    printf("ingrese las palabras que desea buscar, para dejar de ingresar escriba 0\n");
+    printf("ingrese las palabras que desea buscar\n");
+    scanf("%s", &clave);
     while(1){
-        scanf("%99[^\n]", &clave);
-        
         if(strcmp(clave,cero) == 0)break;
         pushFront(palabras,clave);
-        printf("ingrese otra palabra o ingrese 0");
+        printf("ingrese otra palabra o ingrese 0: \n");
+        scanf("%s", &clave);
     }
     printf("chapalele");
 
