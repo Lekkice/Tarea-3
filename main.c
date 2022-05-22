@@ -124,7 +124,7 @@ void submenuLibros(MapasGlobales *mapas){
         scanf("%i", &opcion);
 
         if(opcion == 1)mostrarDocumentosOrdenados(mapas->libros);
-        /*else if(opcion == 2)menuBuscarTitulo();*/
+        else if(opcion == 2)menuBuscarTitulo();
         else if(opcion == 0)break;
         else printf("La opción seleccionada no valida\n");
     }
@@ -185,6 +185,8 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
     printf("Ingrese el nombre del o los libros separados por un espacio con la extension .txt: ");
     getchar();
     scanf("%99[^\n]", &idLibros);
+    printf("Su seleccion de documentos a sido registrada, por favor espere a que termine el proceso de carga\n");
+    printf("*suena una musica de acensor\n");
 
     char *token = strtok(idLibros," \n");
     List *archivos = createList();
