@@ -71,6 +71,12 @@ int lower_than(void *key1, void *key2)
     return 0;
 }
 
+int lower_than_int(void *key1, void *key2)
+{
+    if (key1 < key2) return 1;
+    return 0;
+}
+
 void submenuPalabras(MapasGlobales *);
 void submenuLibros(MapasGlobales *);
 void menuImportarDocumentos(MapasGlobales *);
@@ -187,7 +193,8 @@ void crearListaBloqueo(TreeMap *map){ //MAS MAPAAAAAS, VAMOOOOO
     insertTreeMap(map,"his",NULL); insertTreeMap(map,"she",NULL); insertTreeMap(map,"him",NULL); 
     insertTreeMap(map,"her",NULL); insertTreeMap(map,"they",NULL); insertTreeMap(map,"but",NULL); 
     insertTreeMap(map,"at",NULL); insertTreeMap(map,"a",NULL); insertTreeMap(map,"to",NULL); 
-    insertTreeMap(map,"that",NULL); insertTreeMap(map,"you",NULL);
+    insertTreeMap(map,"that",NULL); insertTreeMap(map,"you",NULL); insertTreeMap(map,"with",NULL);
+    insertTreeMap(map,"in",NULL);
 }
 
 void menuImportarDocumentos(MapasGlobales *mapasGlobales){
@@ -389,43 +396,40 @@ void menuBuscarFrecuencia(MapasGlobales *mapas)
 {
     char id[16];
     Pair *aux = firstTreeMap(mapas->libros);
-    Libro *libro = aux->value;
+    Libro *libro;
     
     printf("Introduzca el id del libro que desea buscar\n");
     scanf("%s",id);
 
-    while(1){
-        if(strcmp(id,libro->id) == 0)break;
+    while(aux){
+        libro = aux->value;
+        if(strcmp(id,libro->id) == 0) break;
         else{
-            aux = nextTreeMap(mapas->libros);
-            if(aux == NULL)break;
-            libro = aux->value;
-        }
+            aux = nextTreeMap(mapas->libros);}
     }
 
     aux = firstTreeMap(libro->palabras);
-    Palabra *palabras = aux->value;
-    List *palabrasFrecuentes = createList();
+    Palabra *palabra = aux->value;
     Palabra *aux2;
 
-    while(palabras != NULL){
-        aux2 = firstList(palabrasFrecuentes);
-        for(int i = 0; i < 10; i++){
-            if(aux2 == NULL)pushBack(palabrasFrecuentes,palabras);
-            else if(palabras->cont > aux2->cont)pushCurrent(palabrasFrecuentes,palabras);
-            else aux2 = nextList(palabrasFrecuentes);
-        }
+    TreeMap *palabrasFrecuentes = createTreeMap(lower_than_int); // mapa para ordenar palabras por frecuencia
+
+    while(aux){
+        palabra = aux->value;
+        int *key = (int *) malloc (sizeof(int));
+        *key = palabra->cont;
+
+        insertTreeMap(palabrasFrecuentes, key, palabra);
         aux = nextTreeMap(libro->palabras);
-        if (aux == NULL)break;
-        palabras = aux->value;
     }
 
-    aux2 = firstList(palabrasFrecuentes);
-    printf("las palabras mas frecuentes son\n");
+    aux = firstTreeMap(palabrasFrecuentes);
+    printf("Las palabras mas frecuentes son:\n");
     for(int i = 1; i <= 10; i++){
-        if(i == 10)printf("%i. %s \n",(i),aux2->palabra);
-        else if (printf("%i. %s ",(i),aux2->palabra));
-        aux2 = nextList(palabrasFrecuentes);
+        if (!aux) break;
+        palabra = aux->value;
+        printf("%i. %s\n", i, palabra->palabra);
+        aux = nextTreeMap(palabrasFrecuentes);
     }
     esperarEnter();
 }
