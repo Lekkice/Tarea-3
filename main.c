@@ -83,6 +83,10 @@ void submenuPalabras(MapasGlobales *);
 void submenuLibros(MapasGlobales *);
 void menuImportarDocumentos(MapasGlobales *);
 void mostrarDocumentosOrdenados(TreeMap *);
+void menuBuscarFrecuencia(MapasGlobales *);
+void menuBuscarRelevancia(MapasGlobales *);
+void menuBuscarApariciones(MapasGlobales *);
+void menuMostrarContexto(MapasGlobales *);
 
 int main()
 {
@@ -130,20 +134,20 @@ void submenuPalabras(MapasGlobales *mapas){
     int opcion;
 
     while(true){
-        printf("1. Buscar palabra con mas frecuencia");
-        printf("2. Buscar palabra con mas relevancia");
-        printf("3. Buscar apariciones de una palabra en los documentos");
-        printf("4. Mostrar palabra en contexto");        
-        printf("0. volver");
+        printf("1. Buscar palabra con mas frecuencia\n");
+        printf("2. Buscar palabra con mas relevancia\n");
+        printf("3. Buscar apariciones de una palabra en los documentos\n");
+        printf("4. Mostrar palabra en contexto\n");        
+        printf("0. volver\n");
 
         scanf("%i", &opcion);
 
-        /*if(opcion == 1)buscarFrecuencia();
-        else if(opcion == 2)buscarRelevancia();
-        else if(opcion == 3)buscarApariciones();
-        else if(opcion == 4)mostrarContexto();*/
-        /*else*/ if(opcion == 0)break;
-        else printf("opcion seleccionada no valida");
+        if(opcion == 1)menuBuscarFrecuencia(mapas);
+        else if(opcion == 2)menuBuscarRelevancia(mapas);
+        else if(opcion == 3)menuBuscarApariciones(mapas);
+        else if(opcion == 4)menuMostrarContexto(mapas);
+        else if(opcion == 0)break;
+        else printf("opcion seleccionada no valida\n");
     }
 }
 
@@ -379,9 +383,9 @@ void menuMostrarContexto(MapasGlobales *mapas){
     char palabra[64];
     long *pos;
 
-    printf("ingrese el titulo del libro a buscar");
+    printf("ingrese el titulo del libro a buscar\n");
     scanf("%[\n]s",&titulo);
-    printf("ingrese la palabra que desea buscar");
+    printf("ingrese la palabra que desea buscar\n");
     scanf("%[\n]",&palabra);
 
     Pair *aux = searchTreeMap(mapas->libros,titulo);
