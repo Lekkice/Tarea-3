@@ -270,14 +270,15 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
 
 void menuMostrarDocumentosOrdenados(TreeMap * mapalibros){
     Pair *aux = firstTreeMap(mapalibros);
-    Libro *data = aux->value;
+    Libro *data;
 
-    while(mapalibros != NULL){
-        printf("%s",aux->key);
-        printf("%lu",data->cantCarac);
+    while(aux){
+        data = aux->value;
+
+        printf("%s ",aux->key);
+        printf("%lu ",data->cantCarac);
 
         aux = nextTreeMap(mapalibros);
-        data = aux->value;
     }
 }
 
@@ -373,7 +374,37 @@ void menuBuscarApariciones(MapasGlobales *mapas)
 
 }
 
-void menuMostrarContexto(MapasGlobales *mapas)
-{
+void menuMostrarContexto(MapasGlobales *mapas){
+    char titulo[128];
+    char palabra[64];
+    int pos;
 
+    printf("ingrese el titulo del libro a buscar");
+    scanf("%[\n]s",&titulo);
+    printf("ingrese la palabra que desea buscar");
+    scanf("%[\n]",&palabra);
+
+    Pair *aux = searchTreeMap(mapas->libros,titulo);
+    char *idLibro = aux->value;
+
+    printf("%s",idLibro);
+
+    if(aux){
+        FILE *fp = fopen(idLibro,"r");
+        Libro* auxStruct = aux->value;
+        TreeMap *mapaPalabras = auxStruct->palabras;
+        if(searchTreeMap(mapaPalabras,palabra) != NULL){
+            List *palabra = mapaPalabras;
+            pos = firstList(palabra);
+            while(pos != 0){
+                fseek(fp,-10,pos);
+                pos = nextList(palabra);
+            }
+        }
+    }
+    else{
+        printf("No existe el libro");
+        esperarEnter();
+        return;
+    }
 }
