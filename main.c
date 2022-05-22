@@ -71,7 +71,7 @@ char* quitar_caracteres(char* string, char* c){
         string[j]='\0';
         i--;
     }
-}
+    }
 
     return string;
 }
@@ -270,15 +270,16 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
 
 void menuMostrarDocumentosOrdenados(TreeMap * mapalibros){
     Pair *aux = firstTreeMap(mapalibros);
-    Libro *data = aux->value;
+    Libro *data;
 
-    while(mapalibros != NULL){
-        printf("%s",aux->key);
-        printf("%lu",data->cantCarac);
+    while(aux){
+        data = aux->value;
+
+        printf("%s. %s, %i palabras y %lu caracteres\n", data->id, aux->key, data->cantPalabras, data->cantCarac);
 
         aux = nextTreeMap(mapalibros);
-        data = aux->value;
     }
+    esperarEnter();
 }
 
 // funciona
