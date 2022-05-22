@@ -414,7 +414,7 @@ void menuBuscarFrecuencia(MapasGlobales *mapas)
     char id[16];
     Pair *aux = firstTreeMap(mapas->libros);
     Libro *libro = aux->value;
-
+    
     printf("ingrese el id del libro que desea buscar\n");
     scanf("%s",id);
 
