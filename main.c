@@ -326,26 +326,19 @@ void menuBuscarTitulo(TreeMap *mapaLibros){
         printf("ingrese otra palabra o ingrese 0: \n");
         scanf("%s", &clave);
     }
-    printf("chapalele");
 
     while(1){
         titulo = strtok(n->key,",");
         p = firstList(palabras);
         token = strtok(titulo," ");
-        while (titulo != NULL)
+        printf("antes del while");
+        while (token != NULL)
         {
-            if(strcmp(p,token) == 0){
-                popCurrent(palabras);
-                p = firstList(palabras);
-            }
-            else if(p = NULL){
-                p = firstList(palabras);
-                token = strtok(titulo," ");
-            }
-            else p = nextList(palabras);
+            if(strcmp(p,token) == 0)p = nextList(palabras);
+            else if(p == NULL)break;
+            else token = strtok(titulo," ");
         }
-        
-        p = firstList(palabras);
+        printf("despues del while");
         if(p == NULL) pushFront(titulosCorrectos, n->key);
 
         n = nextTreeMap(mapaLibros);
