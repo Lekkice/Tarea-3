@@ -73,7 +73,9 @@ int lower_than(void *key1, void *key2)
 
 int lower_than_int(void *key1, void *key2)
 {
-    if (key1 < key2) return 1;
+    int *i1 = (int*) key1;
+    int *i2 = (int*) key2;
+    if (*i1 < *i2) return 1;
     return 0;
 }
 
@@ -194,7 +196,10 @@ void crearListaBloqueo(TreeMap *map){ //MAS MAPAAAAAS, VAMOOOOO
     insertTreeMap(map,"her",NULL); insertTreeMap(map,"they",NULL); insertTreeMap(map,"but",NULL); 
     insertTreeMap(map,"at",NULL); insertTreeMap(map,"a",NULL); insertTreeMap(map,"to",NULL); 
     insertTreeMap(map,"that",NULL); insertTreeMap(map,"you",NULL); insertTreeMap(map,"with",NULL);
-    insertTreeMap(map,"in",NULL);
+    insertTreeMap(map,"in",NULL); insertTreeMap(map,"of",NULL); insertTreeMap(map,"it",NULL);
+    insertTreeMap(map,"as",NULL); insertTreeMap(map,"on",NULL); insertTreeMap(map,"be",NULL);
+    insertTreeMap(map,"or",NULL); insertTreeMap(map,"so",NULL); insertTreeMap(map,"not",NULL);
+    insertTreeMap(map,"he",NULL);
 }
 
 void menuImportarDocumentos(MapasGlobales *mapasGlobales){
@@ -413,7 +418,6 @@ void menuBuscarFrecuencia(MapasGlobales *mapas)
 
     aux = firstTreeMap(libro->palabras);
     Palabra *palabra = aux->value;
-
     TreeMap *palabrasFrecuentes = createTreeMap(lower_than_int); // mapa para ordenar palabras por frecuencia
     int count;
     while(aux){
@@ -425,16 +429,22 @@ void menuBuscarFrecuencia(MapasGlobales *mapas)
         insertTreeMap(palabrasFrecuentes, key, palabra);
         aux = nextTreeMap(libro->palabras);
     }
-    int *key = (int *) malloc (sizeof(int));
-    *key = count;
+
+    List *lista = createList(); // se usa como pila para recorrer el arbol en reversa
     aux = firstTreeMap(palabrasFrecuentes);
+    while (aux)
+    {
+        palabra = aux->value;
+        pushFront(lista, palabra);
+        aux = nextTreeMap(palabrasFrecuentes);
+    }
+    
+    palabra = firstList(lista);
     printf("Las palabras mas frecuentes son:\n");
     for(int i = 1; i <= 10; i++){
-        if (!aux) break;
-        palabra = aux->value;
+        if (!palabra) break;
         printf("%i. %s %i veces\n", i, palabra->palabra, countList(palabra->posiciones));
-        eraseTreeMap(palabrasFrecuentes, aux->key);
-        aux = upperBound(palabrasFrecuentes, );
+        palabra = nextList(lista);
     }
     esperarEnter();
 }
