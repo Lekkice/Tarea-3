@@ -12,7 +12,7 @@ typedef struct{                             // struct para guardar los datos de 
     char titulo[256];
     char id[16];
     long cantPalabras;
-    long cantCarac;           // cantidad de caracteres
+    long cantCarac;                         // cantidad de caracteres
     TreeMap *palabras;
     TreeMap *keywords;
 }Libro;
@@ -274,8 +274,14 @@ void menuImportarDocumentos(MapasGlobales *mapasGlobales){
                 insertTreeMap(mapaPalabra, palabra, aux);
                 agregarMapaGlobal(mapasGlobales->palabras, palabra, libro);
             }
-            
-            
+
+
+            List *search = searchTreeMap(mapasGlobales->palabras,palabra);
+            int cont = 0;
+
+            if(search)cont = countList(search->value);
+            aux->relevancia = (aux->cont/libro->cantPalabras) * log(mapasGlobales->numDoc/cont); 
+
             long *pos = (long *) malloc (sizeof(long));
             *pos = posAux;
 
