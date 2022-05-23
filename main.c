@@ -1,7 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <ctype.h>
 #include <string.h>
 #include <math.h>
@@ -12,26 +11,26 @@ typedef struct{                             // struct para guardar los datos de 
     char titulo[256];
     char id[16];
     long cantPalabras;
-    long cantCarac;                         // cantidad de caracteres
-    TreeMap *palabras;
-    TreeMap *keywords;
+    long cantCarac;
+    TreeMap *palabras;                      // mapa de búsqueda libro -> palabras
+    TreeMap *keywords;                      // separa el titulo en palabras claves para facilitar búsqueda
 }Libro;
 
 typedef struct{                             // struct para guardar las apariciones de cada palabra
     char *palabra;
     unsigned long cont;
     List *posiciones;                       // lista con las posiciones en donde se encuentra la palabra en el libro
-    float relevancia;                       //relevancia de la palabra
+    float relevancia;                       // relevancia de la palabra
 }Palabra;
 
 typedef struct
 {
-    TreeMap *libros;                        //contiene cada TipoLibro
-    TreeMap *palabras;                      //contiene las palabras de todos los libros. key = palabra y value = mapa de libros.
-    int numDoc;                             //necesitaba un lugar para guardarlo
+    TreeMap *libros;                        // contiene cada TipoLibro
+    TreeMap *palabras;                      // mapa de búsqueda palabra -> libros
+    int numDoc;                             // cantidad de documentos cargados
 } MapasGlobales;
 
-char* next_word (FILE *fp) {
+char* next_word (FILE *fp) { // retorna la siguiente palabra respecto a la posición del fp
     char x[1024];
     if (fscanf(fp, " %1023s", x) == 1)
         return strdup(x);
@@ -39,7 +38,7 @@ char* next_word (FILE *fp) {
         return NULL;
 }
 
-char* quitarSimbolos(char* string){
+char* quitarSimbolos(char* string){ // quita caracteres que son símbolos
     int i;
     for(i=0 ; i < strlen(string) ; i++)
     {
@@ -99,10 +98,11 @@ int main()
     mapas->palabras = createTreeMap(lower_than);
     mapas->numDoc = 0;
 
-    while(true){
+    while(1){
+        printf(" || Menú ||\n");
         printf("1. Cargar documentos\n"); // 1.
-        printf("2. Busqueda por documento\n");
-        printf("3. Busqueda por palabras\n");
+        printf("2. Búsqueda por documento\n");
+        printf("3. Búsqueda por palabras\n");
         printf("0. Salir\n");
 
         scanf("%i", &opcion);
@@ -111,7 +111,7 @@ int main()
         else if(opcion == 2)submenuLibros(mapas);
         else if(opcion == 3)submenuPalabras(mapas);
         else if(opcion == 0)break;
-        else printf("La opcion seleccionada no válida\n");
+        else printf("La opción seleccionada no es válida\n");
     }
     return 0;
 }
@@ -119,7 +119,8 @@ int main()
 void submenuLibros(MapasGlobales *mapas){
     int opcion;
 
-    while(true){
+    while(1){
+        printf(" || Menú ||\n");
         printf("1. Mostrar documentos ordenados\n"); // 2.
         printf("2. Buscar documento por título\n"); // 3.
         printf("0. Volver\n");
@@ -129,16 +130,17 @@ void submenuLibros(MapasGlobales *mapas){
         if(opcion == 1)mostrarDocumentosOrdenados(mapas->libros);
         else if(opcion == 2)menuBuscarTitulo(mapas->libros);
         else if(opcion == 0)break;
-        else printf("La opción seleccionada no valida\n");
+        else printf("La opción seleccionada no es válida\n");
     }
 }
 
 void submenuPalabras(MapasGlobales *mapas){
     int opcion;
 
-    while(true){
-        printf("1. Buscar palabra con mas frecuencia\n"); // 4.
-        printf("2. Buscar palabra con mas relevancia\n"); // 5.
+    while(1){
+        printf(" || Menú ||\n");
+        printf("1. Buscar palabra con más frecuencia\n"); // 4.
+        printf("2. Buscar palabra con más relevancia\n"); // 5.
         printf("3. Buscar una palabra en los documentos\n");  // 6.
         printf("4. Mostrar palabra en contexto\n"); // 7.     
         printf("0. Volver\n");
@@ -150,10 +152,11 @@ void submenuPalabras(MapasGlobales *mapas){
         else if(opcion == 3)menuBuscarPalabra(mapas);
         else if(opcion == 4)menuMostrarContexto(mapas);
         else if(opcion == 0)break;
-        else printf("Opción seleccionada no valida\n");
+        else printf("La opción seleccionada no es válida\n");
     }
 }
 
+// calcula la relevancia utilizando la fórmula
 void calcularRelevancia(MapasGlobales *mapas, Palabra *palabra, Libro *libro){
     Pair *search = searchTreeMap(mapas->palabras, palabra->palabra);
     if (!search) return;
@@ -164,17 +167,16 @@ void calcularRelevancia(MapasGlobales *mapas, Palabra *palabra, Libro *libro){
 
     float relevancia = factorPalabras * factorLog;
     palabra->relevancia = relevancia;
-    //printf("palabras = %f; log = %f; relev = %f\n", factorPalabras, factorLog, relevancia);
 }
 
 Libro *cargarLibro(char *titulo, char* id, TreeMap *mapaPalabra){
     Libro *libro = (Libro*) malloc(sizeof(Libro));
-
     strcpy(libro->titulo, titulo);
-    strcpy(libro->id, id); /*libro->id = id;*/
+    strcpy(libro->id, id);
     libro->palabras = mapaPalabra;
 }
 
+// agrega una palabra al mapa global de palabras
 void agregarMapaGlobal(TreeMap *mapa, char *palabra, Libro *libro)
 {
     Pair *search = searchTreeMap(mapa, palabra);
@@ -197,7 +199,7 @@ char *aMinus(char *string)
     return string;
 }
 
-
+// salta las palabras que están contenidas en la lista
 void crearListaBloqueo(TreeMap *map){ //MAS MAPAAAAAS, VAMOOOOO
     insertTreeMap(map,"the",NULL); insertTreeMap(map,"and",NULL); insertTreeMap(map,"for",NULL);
     insertTreeMap(map,"is",NULL); insertTreeMap(map,"was",NULL); insertTreeMap(map,"were",NULL);
@@ -330,7 +332,7 @@ void mostrarDocumentosOrdenados(TreeMap * mapalibros){
 void menuBuscarPalabra(MapasGlobales *mapas){
     char input[128];
 
-    printf("Introduzca la palabra que se quiere buscar: ");
+    printf("Introduzca la palabra que desea buscar: ");
     scanf("%s",&input);
     Pair *aux = searchTreeMap(mapas->palabras, input); if (!aux) return;
     List *listaLibros = aux->value;
@@ -344,6 +346,7 @@ void menuBuscarPalabra(MapasGlobales *mapas){
     esperarEnter();
 }
 
+// separa el string en palabras clave para facilitar la búsqueda
 List *separarEnClaves(char *string)
 {
     List *lista = createList();
@@ -355,6 +358,7 @@ List *separarEnClaves(char *string)
     return lista;
 }
 
+// usa una lista con palabras claves para buscar libros
 List *buscarPalabrasClaves(TreeMap *mapaLibros, List *palabras)
 {
     List *titulos = createList();
@@ -373,7 +377,7 @@ List *buscarPalabrasClaves(TreeMap *mapaLibros, List *palabras)
         while (palabra)
         {
             search = searchTreeMap(keywords, palabra);
-            if (!search) {
+            if (!search) { // si la palabra no está en el título
                 flag = 1; break;
             }
             palabra = nextList(palabras);
@@ -408,7 +412,7 @@ void menuBuscarTitulo(TreeMap *mapaLibros){
     esperarEnter();
 }
 
-// funciona
+
 void menuBuscarFrecuencia(MapasGlobales *mapas)
 {
     char id[16];
@@ -488,7 +492,7 @@ void menuBuscarRelevancia(MapasGlobales *mapas)
 
     aux = firstTreeMap(libro->palabras);
     palabra = aux->value;
-    TreeMap *palabrasRelevantes = createTreeMap(lower_than_float); // mapa para ordenar palabras por frecuencia
+    TreeMap *palabrasRelevantes = createTreeMap(lower_than_float); // mapa para ordenar palabras por relevancia
     float relev;
     while(aux){
         palabra = aux->value;
@@ -519,9 +523,10 @@ void menuBuscarRelevancia(MapasGlobales *mapas)
     esperarEnter();
 }
 
+// imprime el contexto de una palabra
 void imprimirContexto(FILE *fp, long pos)
 {
-    long auxPos = pos - 75;
+    long auxPos = pos - 75; // empieza 75 caracteres antes de la palabra
     if (auxPos < 0) auxPos = 0;
     fseek(fp, auxPos, SEEK_SET);
 
@@ -535,7 +540,7 @@ void imprimirContexto(FILE *fp, long pos)
         string = next_word(fp);
         len = strlen(string);
         if (len > size) break;
-        size -= strlen(string)+1;
+        size -= strlen(string)+1; // disminuye el size por el largo del string
         for (int i=0; i<strlen(string); i++) // elimina newlines
         {
             if (string[i] == '\n') string[i] = ' ';
@@ -546,7 +551,7 @@ void imprimirContexto(FILE *fp, long pos)
     printf("...\n\n");
 }
 
-// funciona
+
 void menuMostrarContexto(MapasGlobales *mapas){
     char titulo[256];
     char palabraInput[64];
@@ -561,7 +566,7 @@ void menuMostrarContexto(MapasGlobales *mapas){
     char *palabra = strtok(palabraInput, "\n"); // elimina el \n al final
     aMinus(palabra);
 
-    List *clavesTitulo = separarEnClaves(titulo);
+    List *clavesTitulo = separarEnClaves(titulo); // búsqueda por palabras claves
     Libro *libro = firstList(buscarPalabrasClaves(mapas->libros, clavesTitulo));
 
     if(libro){
