@@ -51,7 +51,7 @@ char* quitarSimbolos(char* string){
     {
         if (!isalpha(string[i])) // si el caracter no es un alphabet
         {
-            printf("%s %i\n", string, i);
+            //printf("%s %i\n", string, i);
             string[i] = '\0'; // termina el string
             break;
         }
@@ -415,28 +415,26 @@ void menuBuscarFrecuencia(MapasGlobales *mapas)
     Palabra *palabra = aux->value;
 
     TreeMap *palabrasFrecuentes = createTreeMap(lower_than_int); // mapa para ordenar palabras por frecuencia
-    int *max = (int *) malloc (sizeof(int));
-    *max = 0;
     int count;
     while(aux){
         palabra = aux->value;
         count = countList(palabra->posiciones);
         int *key = (int *) malloc (sizeof(int));
         *key = count;
-        if (count > *max) *max = count;
 
         insertTreeMap(palabrasFrecuentes, key, palabra);
         aux = nextTreeMap(libro->palabras);
     }
-
-    aux = upperBound(palabrasFrecuentes, max);
+    int *key = (int *) malloc (sizeof(int));
+    *key = count;
+    aux = firstTreeMap(palabrasFrecuentes);
     printf("Las palabras mas frecuentes son:\n");
     for(int i = 1; i <= 10; i++){
         if (!aux) break;
         palabra = aux->value;
         printf("%i. %s %i veces\n", i, palabra->palabra, countList(palabra->posiciones));
         eraseTreeMap(palabrasFrecuentes, aux->key);
-        aux = upperBound(palabrasFrecuentes, max);
+        aux = upperBound(palabrasFrecuentes, );
     }
     esperarEnter();
 }
