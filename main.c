@@ -457,6 +457,56 @@ void menuBuscarFrecuencia(MapasGlobales *mapas)
 
 void menuBuscarRelevancia(MapasGlobales *mapas)
 {
+    char titulo[128];
+    Libro *libro;
+
+    printf("Ingrese el titulo del libro que se quiere revisar");
+    scanf("%99[^\n]",&titulo);
+
+    Pair *aux = searchTreeMap(mapas->libros,titulo);
+    if(aux) libro = aux->value;
+    else{
+        printf("El libro no se ha encontrado");
+        esperarEnter();
+        return;
+    }
+
+    TreeMap *palabras = libro->palabras;
+    List *listaRelevancia = createList();
+
+    aux = firstTreeMap(palabras);
+
+    Palabra *palabra = aux->value;
+    TreeMap *palabrasRelevantes = createTreeMap(lower_than_int); // mapa para ordenar palabras por relevancia
+    int count;
+    while(aux){
+        palabra = aux->value;
+        count = palabra->relevancia;
+        int *key = (int *) malloc (sizeof(int));
+        *key = count;
+
+        insertTreeMap(palabrasRelevantes, key, palabra);
+        aux = nextTreeMap(libro->palabras);
+    }
+
+    List *lista = createList();
+
+    aux = firstTreeMap(palabrasRelevantes);
+    while (aux)
+    {
+        palabra = aux->value;
+        pushFront(lista, palabra);
+        aux = nextTreeMap(palabrasRelevantes);
+    }
+
+    palabra = firstList(lista);
+    printf("Las palabras mas relevantes son:\n");
+    for(int i = 1; i <= 10; i++){
+        if (!palabra) break;
+        printf("%i. %s relevancia: %i \n", i, palabra->palabra, palabra->relevancia);
+        palabra = nextList(lista);
+    }
+    esperarEnter();
 
 }
 
